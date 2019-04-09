@@ -1,0 +1,14 @@
+{% extends 'shop/base.html' %}
+
+{% block main %}
+  <h1>所有商品</h1>
+  <ul class="goods-list">
+    {% for goods in goods_list %}
+      <li>
+        <div class="name">{{ goods.goods_name }}</div>
+        <div class="price">{{ goods.price }}</div>
+        <div class="seller">{{ goods.seller }}</div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

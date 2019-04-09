@@ -1,0 +1,65 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+header, main, footer {
+    padding: 32px 64px;
+    align-items: stretch;
+}
+
+header, footer {
+    color: white;
+    background: #4f8da3;
+}
+
+header .title {
+    font-size: 50px;
+}
+
+main {
+    flex-grow: 1;
+}
+
+main h1 {
+    color: #3c3c3c;
+    font-weight: normal;
+}
+
+main ul.goods-list {
+    margin: 24px 0;
+    padding: 0;
+}
+
+main ul.goods-list li {
+    padding: 16px 0;
+    list-style: none;
+    border-top: #d3d3d3 1px solid;
+}
+
+main ul.goods-list li .name {
+    color: #4f8da3;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+main ul.goods-list li .price {
+    color: red;
+    font-size: 24px;
+}
+main ul.goods-list li .price:after {
+    content: "￥";
+    font-size: 16px;
+}
+
+main ul.goods-list li .seller {
+    color: #3c3c3c;
+    font-size: 12px;
+}

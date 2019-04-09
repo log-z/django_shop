@@ -1,0 +1,20 @@
+{% load static %}<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+</head>
+<body>
+<header>
+  <div class="title">商城·Shop</div>
+</header>
+<main>
+  {% block main %}
+  {% endblock %}
+</main>
+<footer>
+  <div class="copyright">©商城·Shop 2019</div>
+</footer>
+</body>
+</html>
