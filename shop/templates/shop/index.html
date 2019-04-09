@@ -5,9 +5,12 @@
   <ul class="goods-list">
     {% for goods in goods_list %}
       <li>
-        <div class="name">{{ goods.goods_name }}</div>
-        <div class="price">{{ goods.price }}</div>
-        <div class="seller">{{ goods.seller }}</div>
+        <img class="img" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
+        <div class="text">
+          <div class="name">{{ goods.goods_name }}</div>
+          <div class="price">{{ goods.price }}</div>
+          <div class="seller">{{ goods.seller }}</div>
+        </div>
       </li>
     {% endfor %}
   </ul>

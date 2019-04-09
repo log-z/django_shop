@@ -42,6 +42,17 @@ main ul.goods-list li {
     padding: 16px 0;
     list-style: none;
     border-top: #e4e4e4 1px solid;
+    display: flex;
+    align-items: start;
+}
+
+main ul.goods-list li .img {
+    width: 70px;
+}
+
+main ul.goods-list li .text {
+    flex-grow: 1;
+    margin-left: 16px;
 }
 
 main ul.goods-list li .name {
