@@ -2,7 +2,11 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
+  <title>
+    {% block tag_title %}
+      商城·Shop
+    {% endblock %}
+  </title>
   <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
 </head>
 <body>
