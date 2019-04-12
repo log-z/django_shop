@@ -4,6 +4,7 @@ from .models import User, Goods
 
 
 class UserModelTest(TestCase):
+    """用户模型测试"""
 
     def createUserTest(self):
         u = User.objects.create(username='abc', password='123', email='a@qq.com')
@@ -11,6 +12,7 @@ class UserModelTest(TestCase):
 
 
 class GoodsModelTest(TestCase):
+    """商品模型测试"""
 
     def createGoodsTest(self):
         u = User.objects.create(username='abc', password='123', email='a@qq.com')

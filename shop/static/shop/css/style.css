@@ -33,6 +33,9 @@ main h1 {
     font-weight: normal;
 }
 
+
+/*    商品列表    */
+
 main ul.goods-list {
     margin: 24px 0;
     padding: 0;

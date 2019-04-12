@@ -1,13 +1,10 @@
-from django.http import HttpResponse
-from django.views import  generic
+from django.views import generic
 
 from .models import Goods
 
 
-def index(request):
-    return HttpResponse('shop index page.')
+class GoodsListView(generic.ListView):
+    """商品列表视图"""
 
-
-class IndexView(generic.ListView):
     model = Goods
-    template_name = 'shop/index.html'
+    template_name = 'shop/goods_list.html'
