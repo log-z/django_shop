@@ -3,6 +3,15 @@ html, body {
     padding: 0;
 }
 
+a {
+    color: initial;
+    text-decoration: none;
+}
+
+a:hover, a:focus {
+    text-decoration: underline;
+}
+
 body {
     min-height: 100vh;
     display: flex;
@@ -10,25 +19,25 @@ body {
     flex-direction: column;
 }
 
-body>header, body>main, body>footer {
+body > header, body > main, body > footer {
     padding: 32px 64px;
     align-items: stretch;
 }
 
-body>header, body>footer {
+body > header, body > footer {
     color: white;
     background: #4f8da3;
 }
 
-body>header .title {
+body > header .title {
     font-size: 50px;
 }
 
-body>main {
+body > main {
     flex-grow: 1;
 }
 
-body>main h1 {
+body > main h1 {
     color: #3c3c3c;
     font-weight: normal;
 }
@@ -68,6 +77,7 @@ ul.goods-list li .price {
     color: red;
     font-size: 24px;
 }
+
 ul.goods-list li .price:before {
     content: "¥";
     margin-right: 2px;
@@ -98,7 +108,7 @@ ul.goods-list li .seller {
     margin-left: 24px;
 }
 
-.goods-detail header .text>* {
+.goods-detail header .text > * {
     margin: 16px 0;
 }
 
@@ -111,6 +121,7 @@ ul.goods-list li .seller {
     color: red;
     font-size: 32px;
 }
+
 .goods-detail header .price:before {
     content: "¥";
     margin-right: 2px;
