@@ -8,3 +8,10 @@ class GoodsListView(generic.ListView):
 
     model = Goods
     template_name = 'shop/goods_list.html'
+
+
+class GoodsDetailView(generic.DetailView):
+    """商品详情视图"""
+
+    model = Goods
+    template_name = 'shop/goods_detail.html'

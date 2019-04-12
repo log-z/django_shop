@@ -1,0 +1,28 @@
+{% extends 'shop/base.html' %}
+
+{% block main %}
+  <div class="goods-detail">
+    <header>
+      <img class="img" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
+      <form class="text" method="post">
+        {% csrf_token %}
+
+        <h1 class="title">{{ goods.goods_name }}</h1>
+        <div class="price">{{ goods.price }}</div>
+        <div class="number">
+          <label for="number">数量：</label>
+          <input id="number" name="number" type="number" value="1">
+        </div>
+        <div>
+          <input class="action buy-now" type="submit" value="立即购买">
+          <input class="action add-to-car" type="submit" value="加入购物车">
+        </div>
+        <div class="seller">卖家：{{ goods.seller }}</div>
+      </form>
+    </header>
+    <section>
+      <h2>商品介绍</h2>
+      <div class="description">{{ goods.description }}</div>
+    </section>
+  </div>
+{% endblock %}

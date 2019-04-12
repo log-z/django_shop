@@ -10,25 +10,25 @@ body {
     flex-direction: column;
 }
 
-header, main, footer {
+body>header, body>main, body>footer {
     padding: 32px 64px;
     align-items: stretch;
 }
 
-header, footer {
+body>header, body>footer {
     color: white;
     background: #4f8da3;
 }
 
-header .title {
+body>header .title {
     font-size: 50px;
 }
 
-main {
+body>main {
     flex-grow: 1;
 }
 
-main h1 {
+body>main h1 {
     color: #3c3c3c;
     font-weight: normal;
 }
@@ -36,12 +36,12 @@ main h1 {
 
 /*    商品列表    */
 
-main ul.goods-list {
+ul.goods-list {
     margin: 24px 0;
     padding: 0;
 }
 
-main ul.goods-list li {
+ul.goods-list li {
     padding: 16px 0;
     list-style: none;
     border-top: #e4e4e4 1px solid;
@@ -49,11 +49,11 @@ main ul.goods-list li {
     align-items: start;
 }
 
-main ul.goods-list li .img {
+ul.goods-list li .img {
     width: 70px;
 }
 
-main ul.goods-list li .text {
+ul.goods-list li .text {
     flex-grow: 1;
     margin-left: 16px;
 }
@@ -64,17 +64,90 @@ main ul.goods-list li .name {
     font-weight: bold;
 }
 
-main ul.goods-list li .price {
+ul.goods-list li .price {
     color: red;
     font-size: 24px;
 }
-main ul.goods-list li .price:before {
+ul.goods-list li .price:before {
     content: "¥";
     margin-right: 2px;
     font-size: 16px;
 }
 
-main ul.goods-list li .seller {
+ul.goods-list li .seller {
     color: #3c3c3c;
     font-size: 12px;
+}
+
+
+/*    商品详情    */
+
+.goods-detail header {
+    display: flex;
+    align-items: start;
+}
+
+.goods-detail header .img {
+    width: 320px;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 6px 24px;
+}
+
+.goods-detail header .text {
+    flex-grow: 1;
+    margin-left: 24px;
+}
+
+.goods-detail header .text>* {
+    margin: 16px 0;
+}
+
+.goods-detail header h1.title {
+    margin-top: 0;
+}
+
+.goods-detail header .price {
+    margin-bottom: 50px;
+    color: red;
+    font-size: 32px;
+}
+.goods-detail header .price:before {
+    content: "¥";
+    margin-right: 2px;
+    font-size: 24px;
+}
+
+.goods-detail header .action {
+    margin-right: 8px;
+    padding: 8px 32px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+.goods-detail header .action.buy-now {
+    color: red;
+    background: #ffedcb;
+    border: #efcca6 1px solid;
+}
+
+.goods-detail header .action.add-to-car {
+    color: white;
+    background: #ff523a;
+    border: #ff523a 1px solid;
+}
+
+.goods-detail header .seller {
+    color: #3c3c3c;
+    font-size: 12px;
+}
+
+.goods-detail section {
+    padding: 24px 0;
+}
+
+.goods-detail section h2 {
+    padding: 0 0 16px;
+    color: #838383;
+    font-weight: normal;
+    border-bottom: #e2e2e2 1px solid;
 }
