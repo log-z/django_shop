@@ -17,9 +17,6 @@
           <input class="action buy-now" type="submit" value="立即购买">
           <input class="action add-to-car" type="submit" value="加入购物车">
         </div>
-        <div class="seller">
-          卖家：<a href="{% url 'shop:goods_list' %}?s={{ goods.seller_id }}">{{ goods.seller }}</a>
-        </div>
       </form>
     </header>
     <section>

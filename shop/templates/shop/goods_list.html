@@ -19,7 +19,7 @@
           <div class="text">
             <a class="name" href="{% url 'shop:goods_detail' goods.pk %}">{{ goods.goods_name }}</a>
             <div class="price">{{ goods.price }}</div>
-            <div class="seller">{{ goods.seller }}</div>
+            <a class="seller" href="{% url 'shop:goods_list' %}?s={{ goods.seller_id }}">{{ goods.seller }}</a>
           </div>
         </li>
       {% endfor %}
