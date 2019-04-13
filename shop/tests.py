@@ -18,3 +18,6 @@ class GoodsModelTest(TestCase):
         u = User.objects.create(username='abc', password='123', email='a@qq.com')
         g = Goods.objects.create(goods_name='pc', seller=u, price=5999.99)
         self.assertIn(g, Goods.objects.all())
+
+# class GoodsListViewTest(TestCase):
+    # TODO: 未完成商品检索测试

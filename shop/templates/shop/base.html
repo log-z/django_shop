@@ -3,20 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <title>
-    {% block tag_title %}
-      商城·Shop
-    {% endblock %}
+    {% block tag_title %}商城·Shop{% endblock %}
   </title>
   <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
 </head>
 <body>
 <header>
-  <div class="title">商城·Shop</div>
+  <div class="title">
+    <a href="{% url 'shop:goods_list' %}">商城·Shop</a>
+    {% if seller %}
+      <a class="sub" href="{% url 'shop:goods_list' %}?s={{ seller.id }}">{{ seller.username }}</a>
+    {% endif %}
+  </div>
+  <form class="search" action="{% url 'shop:goods_list' %}" method="get">
+    <input name="g" type="text" value="{{ search_text }}"><input type="submit" value="搜索">
+  </form>
 </header>
 
 <main>
-  {% block main %}
-  {% endblock %}
+  {% block main %}{% endblock %}
 </main>
 
 <footer>

@@ -4,7 +4,7 @@ html, body {
 }
 
 a {
-    color: initial;
+    color: inherit;
     text-decoration: none;
 }
 
@@ -29,9 +29,49 @@ body > header, body > footer {
     background: #4f8da3;
 }
 
+
+/*    页面头部    */
+
+body > header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 body > header .title {
     font-size: 50px;
+    flex-grow: 1;
 }
+
+body > header .title .sub {
+    opacity: 0.5;
+    font-size: 24px;
+    font-weight: lighter;
+}
+
+body > header .search input {
+    padding: 4px 8px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    background: transparent;
+    outline: none;
+}
+
+body > header .search input[type=text] {
+    border: none;
+    border-bottom: rgba(255, 255, 255, 0.7) 1px solid;
+}
+
+body > header .search input[type=submit] {
+    border: rgba(255, 255, 255, 0.7) 1px solid;
+    cursor: pointer;
+}
+body > header .search input[type=submit]:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+
+/*    页面中部    */
 
 body > main {
     flex-grow: 1;
