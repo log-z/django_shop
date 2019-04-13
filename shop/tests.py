@@ -54,6 +54,7 @@ class GoodsListViewTest(TestCase):
         self.assertNotContains(response1, g2.goods_name)
         self.assertNotContains(response1, g3.goods_name)
         self.assertNotContains(response1, 'sorry，未搜索到合适的内容。')
+        self.assertContains(response1, 'value="think"')
 
         # 查找到多个结果
         response2 = self.client.get('/shop/', data={'g': '2019'})
@@ -130,4 +131,28 @@ class GoodsListViewTest(TestCase):
         self.assertEquals(response4.status_code, 404)
 
 
-# TODO: 未编写商品详情页面测试用例
+class GoodsDetailViewTest(TestCase):
+    """商品详情视图测试"""
+
+    def test_base_object_show(self):
+        u = User.objects.create(username='abc', password='123', email='a@qq.com')
+        g = Goods.objects.create(goods_name='pc', seller=u, price=5999.99)
+
+        # 有效商品ID
+        response1 = self.client.get('/shop/goods/{}'.format(g.id))
+        self.assertContains(response1, g.seller.username)
+        self.assertContains(response1, g.goods_name)
+        self.assertContains(response1, g.price)
+        self.assertContains(response1, 'default_goods_image.png')
+
+        # 无效商品ID
+        response2 = self.client.get('/shop/goods/99999')
+        self.assertEquals(response2.status_code, 404)
+
+    def test_full_object_show(self):
+        u = User.objects.create(username='abc', password='123', email='a@qq.com')
+        g = Goods.objects.create(goods_name='pc', seller=u, price=9.9, image='image.png', description='一些奇奇怪怪的描述')
+
+        response1 = self.client.get('/shop/goods/{}'.format(g.id))
+        self.assertContains(response1, g.image.url)
+        self.assertContains(response1, g.description)
