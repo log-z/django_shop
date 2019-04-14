@@ -1,8 +1,11 @@
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from .apps import ShopConfig
 
 import uuid
+import bcrypt
 
 
 # 媒体文件路径
@@ -33,12 +36,24 @@ class User(models.Model):
     """用户模型"""
 
     username = models.CharField(max_length=20, unique=True)
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=60)
     email = models.CharField(max_length=320)
     type = models.ForeignKey(UserType, on_delete=models.PROTECT, default=UserType.objects.get(typename='normal').pk)
 
+    SALT_ROUNDS = 12
+    SALT_PREFIX = b'2b'
+
     def __str__(self):
         return self.username
+
+    def check_password(self, pw):
+        """验证密码是否正确"""
+
+        try:
+            checked = bcrypt.checkpw(password=pw.encode('utf-8'), hashed_password=self.password.encode('utf-8'))
+        except ValueError:
+            checked = False
+        return checked
 
 
 class Goods(models.Model):
@@ -52,3 +67,13 @@ class Goods(models.Model):
 
     def __str__(self):
         return self.goods_name
+
+
+@receiver(pre_save, sender=User)
+def before_user_save(_, instance, **__):
+    """保存用户的修改之前将调用此函数"""
+
+    old_object = User.objects.get(id=instance.id)
+    if not old_object.check_password(instance.password):
+        salt = bcrypt.gensalt(rounds=User.SALT_ROUNDS, prefix=User.SALT_PREFIX)
+        instance.password = bcrypt.hashpw(password=instance.password.encode('utf-8'), salt=salt).decode('utf-8')
