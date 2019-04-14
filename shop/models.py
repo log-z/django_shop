@@ -19,12 +19,23 @@ def goods_image_custom_path(_, filename):
     return filename
 
 
+class UserType(models.Model):
+    """用户类型模型"""
+
+    typename = models.CharField(max_length=20, unique=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.typename
+
+
 class User(models.Model):
     """用户模型"""
 
     username = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=20)
     email = models.CharField(max_length=320)
+    type = models.ForeignKey(UserType, on_delete=models.PROTECT, default=UserType.objects.get(typename='normal').pk)
 
     def __str__(self):
         return self.username
