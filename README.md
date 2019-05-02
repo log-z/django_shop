@@ -5,7 +5,7 @@
 
 ## 开始使用
 
-1. 安装依赖库。必备的第三方库列在 ``/requirements.txt`` 清单文件中，pip 用户通过以下指令可自动化安装所有依赖库。
+1. 安装依赖库。必备的第三方库已列在 ``/requirements.txt`` 清单文件中，pip 用户通过以下指令可自动化安装所有依赖库。
    
    ```
    $ pip install -r requirements.txt
@@ -18,7 +18,7 @@
    $ python manage.py migrate
    ```
 
-3. 运行 Django 服务。（商城首页地址类似于 ``http://127.0.0.1:8000/shop`` ）
+3. 运行 Django 服务。（商城首页地址默认是 ``http://127.0.0.1:8000/shop`` ）
 
    ```
    $ cd project_path
@@ -36,3 +36,8 @@
    * [ ] 查看用户信息
    * [ ] 修改用户信息
    * [ ] ……
+
+
+## 存在问题
+
+1. 商品管理尚未实现，商品的创建、修改和删除暂时需要通过管理页面操作，管理页面地址默认是 ``http://127.0.0.1:8000/admin`` 。管理员账号的创建请参考[官方文档](https://docs.djangoproject.com/zh-hans/2.1/intro/tutorial02/#introducing-the-django-admin)。
