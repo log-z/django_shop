@@ -70,10 +70,14 @@ class Goods(models.Model):
 
 
 @receiver(pre_save, sender=User)
-def before_user_save(_, instance, **__):
+def before_user_save(_=None, instance=None, **__):
     """保存用户的修改之前将调用此函数"""
 
-    old_object = User.objects.get(id=instance.id)
-    if not old_object.check_password(instance.password):
+    try:
+        old_object = User.objects.get(id=instance.id)
+    except User.DoesNotExist:
+        old_object = None
+
+    if not old_object or not old_object.check_password(instance.password):
         salt = bcrypt.gensalt(rounds=User.SALT_ROUNDS, prefix=User.SALT_PREFIX)
         instance.password = bcrypt.hashpw(password=instance.password.encode('utf-8'), salt=salt).decode('utf-8')

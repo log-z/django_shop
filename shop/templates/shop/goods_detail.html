@@ -5,9 +5,9 @@
   <div class="goods-detail">
     <header>
       {% if goods.image %}
-        <img class="img" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
+        <img class="img card" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
       {% else %}
-        <img class="img" src="{% static 'shop/image/default_goods_image.png' %}" alt="{{ goods.goods_name }}">
+        <img class="img card" src="{% static 'shop/image/default_goods_image.png' %}" alt="{{ goods.goods_name }}">
       {% endif %}
       <form class="text" method="post">
         {% csrf_token %}
