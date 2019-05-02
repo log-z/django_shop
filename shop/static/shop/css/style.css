@@ -53,6 +53,11 @@ body > header {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    --action-padding: 4px 8px;
+    --action-font-size: 16px;
+    --action-color: var(--secondary-text-color-light);
+    --action-border: var(--secondary-text-color-light) 1px solid;
+    --action-hover-bg: var(--divider-color-light);
 }
 
 body > header .title {
@@ -67,25 +72,50 @@ body > header .title .sub {
 }
 
 body > header .search input {
-    padding: 4px 8px;
-    font-size: 16px;
-    color: var(--secondary-text-color-light);
+    padding: var(--action-padding);
+    font-size: var(--action-font-size);
+    color: var(--action-color);
     background: transparent;
     outline: none;
 }
 
 body > header .search input[type=text] {
-    border: none;
-    border-bottom: var(--secondary-text-color-light) 1px solid;
+    border-top: none;
+    border-right: none;
+    border-bottom: var(--action-border);
+    border-left: none;
 }
 
 body > header .search input[type=submit] {
-    border: var(--secondary-text-color-light) 1px solid;
+    border: var(--action-border);
     cursor: pointer;
 }
 
 body > header .search input[type=submit]:hover {
-    background: var(--divider-color-light);
+    background: var(--action-hover-bg);
+}
+
+body > header .actionbar {
+    margin-left: 16px;
+    overflow: hidden;
+    font-size: var(--action-font-size);
+    border: var(--action-border);
+}
+
+body > header .action {
+    padding: var(--action-padding);
+    display: block;
+    float: left;
+    color: var(--action-color);
+    border-right: var(--action-border);
+    text-decoration: none;
+}
+body > header .action:last-child {
+    border-right: none;
+}
+
+body > header .action:hover {
+    background: var(--action-hover-bg);
 }
 
 
