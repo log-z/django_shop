@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.db.utils import IntegrityError
 
 from .models import User, Goods
-from .forms import RegisterFbForm, RegisterBbForm
+from .forms import RegisterFbForm, RegisterBbForm, LoginFbForm
 
 
 class GoodsListView(generic.ListView):
@@ -89,5 +89,32 @@ class RegisterView(generic.FormView):
             except IntegrityError:
                 for field in response_form.fields:
                     response_form.add_error(field, format_error_info)
-        print(response_form.errors)
+
         return render(request, self.template_name, context={'form': response_form})
+
+
+class LoginView(generic.FormView):
+    """用户登陆视图"""
+
+    form_class = LoginFbForm
+    template_name = 'shop/login.html'
+
+    def post(self, request, *args, **kwargs):
+        form = LoginFbForm(request.POST)
+        username = form['username'].value()
+        password = form['password'].value()
+
+        response_form = LoginFbForm(dict(username='', email=''))
+        error_info = '账号或密码错误'
+
+        try:
+            user = User.objects.get(username=username)
+            if not user.check_password(password):
+                raise User.DoesNotExist()
+        except User.DoesNotExist:
+            response_form.add_error('username', error_info)
+            response_form.add_error('password', error_info)
+
+            return render(request, self.template_name, context={'form': response_form})
+        else:
+            return HttpResponse('用户“{}”登陆成功'.format(username))

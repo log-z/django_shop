@@ -1,4 +1,6 @@
-/* 检查表单密码是否通过 */
+let salt = '281495';
+
+/* 检查注册表单的密码是否通过 */
 function pw_check(pw1, pw2) {
     return pw1.value === pw2.value
 }
@@ -23,7 +25,7 @@ function clear_errors(form) {
     }
 }
 
-/* 表单提交 */
+/* 注册表单提交 */
 function register_submit() {
     let checked = false;
 
@@ -35,7 +37,6 @@ function register_submit() {
 
         // 检查两次密码输入是否一致
         if (pw_check(pw1, pw2) === true) {
-            let salt = '281495';
             pw1.value = sha256(pw1.value + salt);
             pw2.value = sha256(pw2.value + salt);
 
@@ -51,7 +52,26 @@ function register_submit() {
     return checked;
 }
 
+/* 登陆表单提交 */
+function login_submit() {
+    let checked = false;
+
+    try {
+        let pw = this.querySelector('#id_password');
+        pw.value = sha256(pw.value + salt);
+
+        checked = true;
+    } catch (e) {
+        checked = false;
+    }
+
+    return checked;
+}
+
 window.onload = () => {
     let register_form = document.querySelector('#user_register_form');
     if (register_form) register_form.onsubmit = register_submit;
+
+    let login_form = document.querySelector('#user_login_form');
+    if (login_form) login_form.onsubmit = login_submit;
 };
