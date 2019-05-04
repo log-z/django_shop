@@ -125,7 +125,7 @@ class RegisterView(generic.FormView):
                 for field in response_form.fields:
                     response_form.add_error(field, format_error_info)
 
-        return self.form_valid(response_form)
+        return self.form_invalid(response_form)
 
 
 class LoginView(generic.FormView):
@@ -161,7 +161,7 @@ class LoginView(generic.FormView):
             response_form.add_error('username', error_info)
             response_form.add_error('password', error_info)
 
-            return self.form_valid(response_form)
+            return self.form_invalid(response_form)
         else:
             return redirect_to_index()
 
@@ -171,4 +171,3 @@ def logout(request):
 
     del request.session['user_id']
     return HttpResponseRedirect(reverse('shop:login'))
-
