@@ -1,10 +1,27 @@
 from django.views import generic
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import reverse, get_object_or_404, HttpResponseRedirect
 from django.http import HttpResponse
 from django.db.utils import IntegrityError
 
 from .models import User, Goods
 from .forms import RegisterFbForm, RegisterBbForm, LoginFbForm
+
+
+def get_current_user(request):
+    """获取当前用户对象"""
+
+    try:
+        user_id = request.session['user_id']
+        user = User.objects.get(id=user_id)
+        return user
+    except (User.DoesNotExist, KeyError):
+        return None
+
+
+def redirect_to_index():
+    """重定向到首页"""
+
+    return HttpResponseRedirect(reverse('shop:goods_list'))
 
 
 class GoodsListView(generic.ListView):
@@ -38,6 +55,9 @@ class GoodsListView(generic.ListView):
         if 's' in self.request.GET:
             object_list['seller'] = get_object_or_404(User, id=self.request.GET['s'])
 
+        # 添加当前用户context
+        object_list['current_user'] = get_current_user(self.request)
+
         return object_list
 
 
@@ -52,6 +72,9 @@ class GoodsDetailView(generic.DetailView):
 
         # 添加商家到context
         object_list['seller'] = self.object.seller
+        # 添加当前用户context
+        object_list['current_user'] = get_current_user(self.request)
+
         return object_list
 
 
@@ -61,7 +84,16 @@ class RegisterView(generic.FormView):
     form_class = RegisterFbForm
     template_name = 'shop/register.html'
 
+    def get(self, request, *args, **kwargs):
+        if request.session.get('user_id', None):
+            return redirect_to_index()
+        else:
+            return self.render_to_response(self.get_context_data())
+
     def post(self, request, *args, **kwargs):
+        if request.session.get('user_id', None):
+            return redirect_to_index()
+
         form = RegisterFbForm(request.POST)
         username = form['username'].value()
         email = form['email'].value()
@@ -84,13 +116,16 @@ class RegisterView(generic.FormView):
                 response_form.add_error(field, format_error_info)
         else:
             try:
-                User(username=username, email=email, password=password1).save()
+                user = User(username=username, email=email, password=password1)
+                user.save()
+                request.session['user_id'] = user.id
+
                 return HttpResponse('用户“{}”注册成功'.format(username))
             except IntegrityError:
                 for field in response_form.fields:
                     response_form.add_error(field, format_error_info)
 
-        return render(request, self.template_name, context={'form': response_form})
+        return self.form_valid(response_form)
 
 
 class LoginView(generic.FormView):
@@ -99,7 +134,16 @@ class LoginView(generic.FormView):
     form_class = LoginFbForm
     template_name = 'shop/login.html'
 
+    def get(self, request, *args, **kwargs):
+        if request.session.get('user_id', None):
+            return redirect_to_index()
+        else:
+            return self.render_to_response(self.get_context_data())
+
     def post(self, request, *args, **kwargs):
+        if request.session.get('user_id', None):
+            return redirect_to_index()
+
         form = LoginFbForm(request.POST)
         username = form['username'].value()
         password = form['password'].value()
@@ -111,10 +155,20 @@ class LoginView(generic.FormView):
             user = User.objects.get(username=username)
             if not user.check_password(password):
                 raise User.DoesNotExist()
+
+            request.session['user_id'] = user.id
         except User.DoesNotExist:
             response_form.add_error('username', error_info)
             response_form.add_error('password', error_info)
 
-            return render(request, self.template_name, context={'form': response_form})
+            return self.form_valid(response_form)
         else:
-            return HttpResponse('用户“{}”登陆成功'.format(username))
+            return redirect_to_index()
+
+
+def logout(request):
+    """退出用户登陆"""
+
+    del request.session['user_id']
+    return HttpResponseRedirect(reverse('shop:login'))
+
