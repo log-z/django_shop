@@ -1,3 +1,6 @@
 db.sqlite3
 
 media/
+doc/
+.idea/markdown-navigator/
+.idea/markdown-navigator.xml
