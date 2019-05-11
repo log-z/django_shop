@@ -49,6 +49,9 @@ class User(models.Model):
     def check_password(self, pw):
         """验证密码是否正确"""
 
+        if pw is None:
+            return False
+
         try:
             checked = bcrypt.checkpw(password=pw.encode('utf-8'), hashed_password=self.password.encode('utf-8'))
         except ValueError:

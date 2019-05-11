@@ -490,6 +490,12 @@ class RegisterViewTest(TestCase):
     url = reverse('shop:register')
     register_view_identity = '已有账号，我要登陆'
 
+    def test_not_logged(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.register_view_identity)
+        self.assertNotContains(response, reverse('shop:logout'))
+
     def test_csrf(self):
         # 测试CSRF是否可用
         response1 = self.client.get(self.url)
@@ -504,6 +510,7 @@ class RegisterViewTest(TestCase):
         response3 = self.client.post(self.url)
         self.assertEqual(response3.status_code, 200)
         self.assertContains(response3, self.register_view_identity)
+        self.assertFalse(User.objects.all().exists())
 
     def test_valid_submit(self):
         # 最小长度的后端有效注册信息
@@ -621,3 +628,198 @@ class RegisterViewTest(TestCase):
         self.assertEqual(response3.status_code, 200)
         self.assertContains(response3, self.register_view_identity)
         self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+    def test_is_logged(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data)
+
+        # 登陆
+        response1 = self.client.post(reverse('shop:login'), data=data)
+        self.assertEqual(response1.status_code, 302)
+
+        # 登陆
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 302)
+
+        # 登陆
+        response3 = self.client.get(self.url, data=data)
+        self.assertEqual(response3.status_code, 302)
+
+
+class LoginViewTest(TestCase):
+
+    url = reverse('shop:login')
+    login_view_identity = '还没账号，我要注册'
+
+    def test_not_logged(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.login_view_identity)
+        self.assertNotContains(response, reverse('shop:logout'))
+
+    def test_csrf(self):
+        # 测试CSRF是否可用
+        response1 = self.client.get(self.url)
+        self.assertContains(response1, 'csrfmiddlewaretoken')
+
+        # 测试无CSRFToken的空提交
+        client = Client(enforce_csrf_checks=True)
+        response2 = client.post(self.url)
+        self.assertEqual(response2.status_code, 403)
+
+        # 测试带CSRFToken的空提交
+        response3 = self.client.post(self.url)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.login_view_identity)
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+    def test_valid_submit(self):
+        # 最小长度的后端有效登陆信息
+        data1 = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data1)
+        response1 = self.client.post(self.url, data=data1)
+        self.assertEqual(response1.status_code, 302)
+        self.client.cookies.clear()
+
+        # 最大长度的后端有效登陆信息
+        data2 = {
+            'username': '12345678901234567890',
+            'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.com',
+            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
+        }
+        User.objects.create(**data2)
+        response2 = self.client.post(self.url, data=data2)
+        self.assertEqual(response2.status_code, 302)
+        self.client.cookies.clear()
+
+    def test_invalid_username(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data)
+
+        # 不指定用户名
+        del data['username']
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertContains(response1, self.login_view_identity)
+        self.assertNotContains(response1, reverse('shop:logout'))
+
+        # 长度过短的用户名
+        data['username'] = '12'
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, self.login_view_identity)
+        self.assertNotContains(response2, reverse('shop:logout'))
+
+        # 超出长度的用户名
+        data['username'] = '12345678901234567890a'
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.login_view_identity)
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+        # 错误的用户名
+        data['username'] = '321'
+        response4 = self.client.post(self.url, data=data)
+        self.assertEqual(response4.status_code, 200)
+        self.assertContains(response3, self.login_view_identity)
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+    def test_invalid_password(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data)
+
+        # 不指定密码
+        del data['password']
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertContains(response1, self.login_view_identity)
+        self.assertNotContains(response1, reverse('shop:logout'))
+
+        # 长度过短的密码
+        data['password'] = hashlib.sha256(b'12345678').hexdigest()[:-1]
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, self.login_view_identity)
+        self.assertNotContains(response2, reverse('shop:logout'))
+
+        # 超出长度的密码
+        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.login_view_identity)
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+        # 错误的密码
+        data['password'] = hashlib.sha256(b'87654321').hexdigest()
+        response4 = self.client.post(self.url, data=data)
+        self.assertEqual(response4.status_code, 200)
+        self.assertContains(response3, self.login_view_identity)
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+    def test_user_center_enter(self):
+        # 已登录状态
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+
+        User.objects.create(**data)
+        self.client.post(self.url, data=data)
+
+        response2 = self.client.get(reverse('shop:goods_list'))
+        self.assertContains(response2, reverse('shop:logout'))
+
+    def test_user_logout(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data)
+
+        # 登陆
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 302)
+        # 退出
+        response2 = self.client.get(reverse('shop:logout'))
+        self.assertEqual(response2.status_code, 302)
+        # 检查退出状态
+        response3 = self.client.get(reverse('shop:goods_list'))
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+    def test_is_logged(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+            }
+        User.objects.create(**data)
+
+        # 登陆
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 302)
+
+        # 登陆
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 302)
+
+        # 登陆
+        response3 = self.client.get(self.url, data=data)
+        self.assertEqual(response3.status_code, 302)
