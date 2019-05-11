@@ -303,7 +303,7 @@ class RegisterBbFormTest(TestCase):
     def test_invalid_username(self):
         data = {
             'email': 'a@b.com',
-            'password': '12345678',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
         }
 
         # 不指定用户名
@@ -323,7 +323,7 @@ class RegisterBbFormTest(TestCase):
     def test_invalid_email(self):
         data = {
             'username': '123',
-            'password': '12345678',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
         }
 
         # 不指定Email
@@ -488,6 +488,7 @@ class LoginBbFormTest(TestCase):
 class RegisterViewTest(TestCase):
 
     url = reverse('shop:register')
+    register_view_identity = '已有账号，我要登陆'
 
     def test_csrf(self):
         # 测试CSRF是否可用
@@ -502,4 +503,121 @@ class RegisterViewTest(TestCase):
         # 测试带CSRFToken的空提交
         response3 = self.client.post(self.url)
         self.assertEqual(response3.status_code, 200)
-        self.assertContains(response3, '已有账号，我要登陆')
+        self.assertContains(response3, self.register_view_identity)
+
+    def test_valid_submit(self):
+        # 最小长度的后端有效注册信息
+        data1 = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        response1 = self.client.post(self.url, data=data1)
+        self.assertEqual(response1.status_code, 302)
+        self.assertTrue(User.objects.filter(email=data1['email']).exists())
+        self.client.cookies.clear()
+        User.objects.all().delete()
+
+        # 最大长度的后端有效注册信息
+        data2 = {
+            'username': '12345678901234567890',
+            'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.com',
+            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
+            'password_again': hashlib.sha256(b'12345678901234567890').hexdigest(),
+        }
+        response2 = self.client.post(self.url, data=data2)
+        self.assertEqual(response2.status_code, 302)
+        self.assertTrue(User.objects.filter(email=data2['email']).exists())
+        self.client.cookies.clear()
+        User.objects.all().delete()
+
+    def test_invalid_username(self):
+        data = {
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+        }
+
+        # 不指定用户名
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertContains(response1, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 长度过短的用户名
+        data['username'] = '12'
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 超出长度的用户名
+        data['username'] = '12345678901234567890a'
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+    def test_invalid_email(self):
+        data = {
+            'username': '123',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+        }
+
+        # 不指定Email
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertContains(response1, self.register_view_identity)
+        self.assertFalse(User.objects.all().exists())
+
+        # 不带“@”的Email
+        data['email'] = 'ab.com'
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 不带域名的Email
+        data['email'] = 'a@b'
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+    def test_invalid_password(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+        }
+
+        # 不指定密码
+        response1 = self.client.post(self.url, data=data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertContains(response1, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 长度过短的密码
+        data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
+        data['password_again'] = hashlib.sha256(b'1').hexdigest()[:-1]
+        response2 = self.client.post(self.url, data=data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertContains(response2, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 超出长度的密码
+        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        data['password_again'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())
+
+        # 两次输入的密码不一致
+        data['password'] = hashlib.sha256(b'12345678').hexdigest()
+        data['password_again'] = hashlib.sha256(b'87654321').hexdigest()
+        response3 = self.client.post(self.url, data=data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, self.register_view_identity)
+        self.assertFalse(User.objects.filter(email=data['email']).exists())

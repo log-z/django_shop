@@ -1,6 +1,5 @@
 from django.views import generic
 from django.shortcuts import reverse, get_object_or_404, HttpResponseRedirect
-from django.http import HttpResponse
 from django.db.utils import IntegrityError
 
 from .models import User, Goods
@@ -120,7 +119,7 @@ class RegisterView(generic.FormView):
                 user.save()
                 request.session['user_id'] = user.id
 
-                return HttpResponse('用户“{}”注册成功'.format(username))
+                return redirect_to_index()
             except IntegrityError:
                 for field in response_form.fields:
                     response_form.add_error(field, format_error_info)
