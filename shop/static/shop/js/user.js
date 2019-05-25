@@ -47,6 +47,7 @@ function register_submit() {
         }
     } catch (e) {
         checked = false;
+        window.alert('注册时发生未知错误，请刷新页面后重试。')
     }
 
     return checked;
@@ -63,6 +64,7 @@ function login_submit() {
         checked = true;
     } catch (e) {
         checked = false;
+        window.alert('登陆时发生未知错误，请刷新页面后重试。')
     }
 
     return checked;

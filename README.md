@@ -14,14 +14,12 @@
 2. 数据库迁移（初次使用可跳过）。如果已经存在旧版本项目，那么请迁移数据库到最新版本。通过以下指令即可执行迁移。
 
    ```
-   $ cd project_path
    $ python manage.py migrate
    ```
 
 3. 运行 Django 服务。（商城首页地址默认是 ``http://127.0.0.1:8000/shop`` ）
 
    ```
-   $ cd project_path
    $ python manage.py runserver
    ```
 

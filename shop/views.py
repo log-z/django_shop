@@ -3,7 +3,7 @@ from django.shortcuts import reverse, get_object_or_404, HttpResponseRedirect
 from django.db.utils import IntegrityError
 
 from .models import User, Goods
-from .forms import RegisterFbForm, RegisterBbForm, LoginFbForm
+from .forms import RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm
 
 
 def get_current_user(request):
@@ -12,9 +12,23 @@ def get_current_user(request):
     try:
         user_id = request.session['user_id']
         user = User.objects.get(id=user_id)
+
         return user
-    except (User.DoesNotExist, KeyError):
+    except (User.DoesNotExist, KeyError) as e:
+        # 删除无效的用户登陆关联
+        if type(e) is User.DoesNotExist:
+            associate_user_to_client(request, None)
+
         return None
+
+
+def associate_user_to_client(request, user_id):
+    """关联用户登陆到客户端"""
+
+    if user_id is None:
+        del request.session['user_id']
+    else:
+        request.session['user_id'] = user_id
 
 
 def redirect_to_index():
@@ -80,47 +94,53 @@ class GoodsDetailView(generic.DetailView):
 class RegisterView(generic.FormView):
     """用户注册视图"""
 
-    form_class = RegisterFbForm
+    form_class = RegisterFEForm
     template_name = 'shop/register.html'
 
     def get(self, request, *args, **kwargs):
-        if request.session.get('user_id', None):
+        if get_current_user(request) is not None:
             return redirect_to_index()
         else:
             return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        if request.session.get('user_id', None):
+        if get_current_user(request) is not None:
             return redirect_to_index()
 
-        form = RegisterFbForm(request.POST)
-        username = form['username'].value()
-        email = form['email'].value()
-        password1 = form['password'].value()
-        password2 = form['password_again'].value()
+        request_form = RegisterFEForm(request.POST)
+        username = request_form['username'].value()
+        email = request_form['email'].value()
+        password1 = request_form['password'].value()
+        password2 = request_form['password_again'].value()
 
-        response_form = RegisterFbForm(dict(username=username, email=email))
+        response_form = RegisterFEForm(dict(username=username, email=email))
         format_error_info = '注册信息格式错误'
 
-        if User.objects.filter(username=username):
-            response_form.add_error('username', '该用户已存在')
+        if not RegisterBEForm(request.POST).is_valid():
+            # 表单格式错误
+            for field in response_form.fields:
+                response_form.add_error(field, format_error_info)
+        elif User.objects.filter(username=username):
+            # 该用户名已被使用
+            response_form.add_error('username', '该用户名已被使用')
         elif User.objects.filter(email=email):
+            # 该邮箱已被使用
             response_form.add_error('email', '该邮箱已被使用')
         elif password1 != password2:
+            # 两次输入的密码不一致
             error_info = '两次输入的密码不一致'
             response_form.add_error('password', error_info)
             response_form.add_error('password_again', error_info)
-        elif not RegisterBbForm(request.POST).is_valid():
-            for field in response_form.fields:
-                response_form.add_error(field, format_error_info)
         else:
+            # 尝试新增用户
             try:
                 user = User(username=username, email=email, password=password1)
                 user.save()
-                request.session['user_id'] = user.id
+                associate_user_to_client(request, user.id)
 
                 return redirect_to_index()
             except IntegrityError:
+                # 新增用户到数据库失败
                 for field in response_form.fields:
                     response_form.add_error(field, format_error_info)
 
@@ -130,43 +150,51 @@ class RegisterView(generic.FormView):
 class LoginView(generic.FormView):
     """用户登陆视图"""
 
-    form_class = LoginFbForm
+    form_class = LoginFEForm
     template_name = 'shop/login.html'
 
     def get(self, request, *args, **kwargs):
-        if request.session.get('user_id', None):
+        if get_current_user(request) is not None:
             return redirect_to_index()
         else:
             return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        if request.session.get('user_id', None):
+        if get_current_user(request) is not None:
             return redirect_to_index()
 
-        form = LoginFbForm(request.POST)
-        username = form['username'].value()
-        password = form['password'].value()
+        request_form = LoginFEForm(request.POST)
+        username = request_form['username'].value()
+        password = request_form['password'].value()
 
-        response_form = LoginFbForm(dict(username='', email=''))
-        error_info = '账号或密码错误'
+        response_form = LoginFEForm(dict(username='', email=''))
 
-        try:
-            user = User.objects.get(username=username)
-            if not user.check_password(password):
-                raise User.DoesNotExist()
-
-            request.session['user_id'] = user.id
-        except User.DoesNotExist:
-            response_form.add_error('username', error_info)
-            response_form.add_error('password', error_info)
-
-            return self.form_invalid(response_form)
+        if not LoginBEForm(request.POST).is_valid():
+            # 表单格式错误
+            for field in response_form.fields:
+                response_form.add_error(field, '注册信息格式错误')
         else:
-            return redirect_to_index()
+            # 尝试登陆，检查用户名和密码
+            try:
+                user = User.objects.get(username=username)
+                if not user.check_password(password):
+                    raise User.DoesNotExist()
+
+                associate_user_to_client(request, user.id)
+
+                # 登陆成功
+                return redirect_to_index()
+            except User.DoesNotExist:
+                # 用户名或密码错误
+                error_info = '用户名或密码错误'
+                response_form.add_error('username', error_info)
+                response_form.add_error('password', error_info)
+
+        return self.form_invalid(response_form)
 
 
 def logout(request):
     """退出用户登陆"""
 
-    del request.session['user_id']
+    associate_user_to_client(request, None)
     return HttpResponseRedirect(reverse('shop:login'))

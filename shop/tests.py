@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 from django.shortcuts import reverse
 
 from .models import User, Goods
-from .forms import RegisterBbForm, RegisterFbForm, LoginBbForm, LoginFbForm
+from .forms import RegisterBEForm, RegisterFEForm, LoginBEForm, LoginFEForm
 
 
 class UserModelTest(TestCase):
@@ -167,11 +167,12 @@ class GoodsDetailViewTest(TestCase):
         self.assertContains(response1, g.description)
 
 
-class RegisterFbFormTest(TestCase):
+class RegisterFEFormTest(TestCase):
+    """前端注册表单测试"""
 
     def test_valid_form(self):
         # 最小长度的前端有效注册信息
-        form1 = RegisterFbForm({
+        form1 = RegisterFEForm({
             'username': '123',
             'email': 'a@b.com',
             'password': '12345678',
@@ -180,7 +181,7 @@ class RegisterFbFormTest(TestCase):
         self.assertTrue(form1.is_valid())
 
         # 最大长度的前端有效注册信息
-        form2 = RegisterFbForm({
+        form2 = RegisterFEForm({
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.commmmmmmmmmmmmm',
             'password': '12345678901234567890',
@@ -189,7 +190,7 @@ class RegisterFbFormTest(TestCase):
         self.assertTrue(form2.is_valid())
 
     def test_blank_form(self):
-        form = RegisterFbForm()
+        form = RegisterFEForm()
         self.assertFalse(form.is_valid())
 
     def test_invalid_username(self):
@@ -200,17 +201,17 @@ class RegisterFbFormTest(TestCase):
         }
 
         # 不指定用户名
-        form1 = RegisterFbForm(data)
+        form1 = RegisterFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的用户名
         data['username'] = '12'
-        form2 = RegisterFbForm(data)
+        form2 = RegisterFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的用户名
         data['username'] = '12345678901234567890a'
-        form3 = RegisterFbForm(data)
+        form3 = RegisterFEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_email(self):
@@ -221,17 +222,17 @@ class RegisterFbFormTest(TestCase):
         }
 
         # 不指定Email
-        form1 = RegisterFbForm(data)
+        form1 = RegisterFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 不带“@”的Email
         data['email'] = 'ab.com'
-        form2 = RegisterFbForm(data)
+        form2 = RegisterFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 不带域名的Email
         data['email'] = 'a@b'
-        form3 = RegisterFbForm(data)
+        form3 = RegisterFEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_password(self):
@@ -242,17 +243,17 @@ class RegisterFbFormTest(TestCase):
         }
 
         # 不指定密码
-        form1 = RegisterFbForm(data)
+        form1 = RegisterFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
         data['password'] = '1234567'
-        form2 = RegisterFbForm(data)
+        form2 = RegisterFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
         data['password'] = '12345678901234567890a'
-        form3 = RegisterFbForm(data)
+        form3 = RegisterFEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_password_again(self):
@@ -263,25 +264,26 @@ class RegisterFbFormTest(TestCase):
         }
 
         # 不指定重输的密码
-        form1 = RegisterFbForm(data)
+        form1 = RegisterFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的重输的密码
         data['password_again'] = '1234567'
-        form2 = RegisterFbForm(data)
+        form2 = RegisterFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的重输的密码
         data['password_again'] = '12345678901234567890a'
-        form3 = RegisterFbForm(data)
+        form3 = RegisterFEForm(data)
         self.assertFalse(form3.is_valid())
 
 
-class RegisterBbFormTest(TestCase):
+class RegisterBEFormTest(TestCase):
+    """后端注册表单测试"""
 
     def test_valid_form(self):
         # 最小长度的后端有效注册信息
-        form1 = RegisterBbForm({
+        form1 = RegisterBEForm({
             'username': '123',
             'email': 'a@b.com',
             'password': hashlib.sha256(b'12345678').hexdigest(),
@@ -289,7 +291,7 @@ class RegisterBbFormTest(TestCase):
         self.assertTrue(form1.is_valid())
 
         # 最大长度的后端有效注册信息
-        form2 = RegisterBbForm({
+        form2 = RegisterBEForm({
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.commmmmmmmmmmmmm',
             'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
@@ -297,7 +299,7 @@ class RegisterBbFormTest(TestCase):
         self.assertTrue(form2.is_valid())
 
     def test_blank_form(self):
-        form = RegisterBbForm()
+        form = RegisterBEForm()
         self.assertFalse(form.is_valid())
 
     def test_invalid_username(self):
@@ -307,17 +309,17 @@ class RegisterBbFormTest(TestCase):
         }
 
         # 不指定用户名
-        form1 = RegisterBbForm(data)
+        form1 = RegisterBEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的用户名
         data['username'] = '12'
-        form2 = RegisterBbForm(data)
+        form2 = RegisterBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的用户名
         data['username'] = '12345678901234567890a'
-        form3 = RegisterBbForm(data)
+        form3 = RegisterBEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_email(self):
@@ -327,17 +329,17 @@ class RegisterBbFormTest(TestCase):
         }
 
         # 不指定Email
-        form1 = RegisterBbForm(data)
+        form1 = RegisterBEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 不带“@”的Email
         data['email'] = 'ab.com'
-        form2 = RegisterBbForm(data)
+        form2 = RegisterBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 不带域名的Email
         data['email'] = 'a@b'
-        form3 = RegisterBbForm(data)
+        form3 = RegisterBEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_password(self):
@@ -347,39 +349,40 @@ class RegisterBbFormTest(TestCase):
         }
 
         # 不指定密码
-        form1 = RegisterBbForm(data)
+        form1 = RegisterBEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
         data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
-        form2 = RegisterBbForm(data)
+        form2 = RegisterBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
         data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
-        form3 = RegisterBbForm(data)
+        form3 = RegisterBEForm(data)
         self.assertFalse(form3.is_valid())
 
 
-class LoginFbFormTest(TestCase):
+class LoginFEFormTest(TestCase):
+    """前端登陆表单测试"""
 
     def test_valid_form(self):
         # 最小长度的前端有效登陆信息
-        form1 = LoginFbForm({
+        form1 = LoginFEForm({
             'username': '123',
             'password': '12345678',
         })
         self.assertTrue(form1.is_valid())
 
         # 最大长度的前端有效登陆信息
-        form2 = LoginFbForm({
+        form2 = LoginFEForm({
             'username': '12345678901234567890',
             'password': '12345678901234567890',
         })
         self.assertTrue(form2.is_valid())
 
     def test_blank_form(self):
-        form = LoginFbForm()
+        form = LoginFEForm()
         self.assertFalse(form.is_valid())
 
     def test_invalid_username(self):
@@ -388,17 +391,17 @@ class LoginFbFormTest(TestCase):
         }
 
         # 不指定用户名
-        form1 = LoginFbForm(data)
+        form1 = LoginFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的用户名
         data['username'] = '12'
-        form2 = LoginFbForm(data)
+        form2 = LoginFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的用户名
         data['username'] = '12345678901234567890a'
-        form3 = LoginFbForm(data)
+        form3 = LoginFEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_password(self):
@@ -407,25 +410,26 @@ class LoginFbFormTest(TestCase):
         }
 
         # 不指定密码
-        form1 = LoginFbForm(data)
+        form1 = LoginFEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
         data['password'] = '1234567'
-        form2 = LoginFbForm(data)
+        form2 = LoginFEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
         data['password'] = '12345678901234567890a'
-        form3 = LoginFbForm(data)
+        form3 = LoginFEForm(data)
         self.assertFalse(form3.is_valid())
 
 
-class LoginBbFormTest(TestCase):
+class LoginBEFormTest(TestCase):
+    """后端登陆表单测试"""
 
     def test_valid_form(self):
         # 最小长度的后端有效登陆信息
-        form1 = LoginBbForm({
+        form1 = LoginBEForm({
             'username': '123',
             'email': 'a@b.com',
             'password': hashlib.sha256(b'12345678').hexdigest(),
@@ -433,7 +437,7 @@ class LoginBbFormTest(TestCase):
         self.assertTrue(form1.is_valid())
 
         # 最大长度的后端有效登陆信息
-        form2 = LoginBbForm({
+        form2 = LoginBEForm({
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.commmmmmmmmmmmmm',
             'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
@@ -441,7 +445,7 @@ class LoginBbFormTest(TestCase):
         self.assertTrue(form2.is_valid())
 
     def test_blank_form(self):
-        form = LoginBbForm()
+        form = LoginBEForm()
         self.assertFalse(form.is_valid())
 
     def test_invalid_username(self):
@@ -451,17 +455,17 @@ class LoginBbFormTest(TestCase):
         }
 
         # 不指定用户名
-        form1 = LoginBbForm(data)
+        form1 = LoginBEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的用户名
         data['username'] = '12'
-        form2 = LoginBbForm(data)
+        form2 = LoginBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的用户名
         data['username'] = '12345678901234567890a'
-        form3 = LoginBbForm(data)
+        form3 = LoginBEForm(data)
         self.assertFalse(form3.is_valid())
 
     def test_invalid_password(self):
@@ -471,21 +475,22 @@ class LoginBbFormTest(TestCase):
         }
 
         # 不指定密码
-        form1 = LoginBbForm(data)
+        form1 = LoginBEForm(data)
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
         data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
-        form2 = LoginBbForm(data)
+        form2 = LoginBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
         data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
-        form3 = LoginBbForm(data)
+        form3 = LoginBEForm(data)
         self.assertFalse(form3.is_valid())
 
 
 class RegisterViewTest(TestCase):
+    """注册视图测试"""
 
     url = reverse('shop:register')
     register_view_identity = '已有账号，我要登陆'
@@ -651,6 +656,7 @@ class RegisterViewTest(TestCase):
 
 
 class LoginViewTest(TestCase):
+    """登陆视图测试"""
 
     url = reverse('shop:login')
     login_view_identity = '还没账号，我要注册'
@@ -772,44 +778,12 @@ class LoginViewTest(TestCase):
         self.assertContains(response3, self.login_view_identity)
         self.assertNotContains(response3, reverse('shop:logout'))
 
-    def test_user_center_enter(self):
-        # 已登录状态
-        data = {
-            'username': '123',
-            'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-        }
-
-        User.objects.create(**data)
-        self.client.post(self.url, data=data)
-
-        response2 = self.client.get(reverse('shop:goods_list'))
-        self.assertContains(response2, reverse('shop:logout'))
-
-    def test_user_logout(self):
-        data = {
-            'username': '123',
-            'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-        }
-        User.objects.create(**data)
-
-        # 登陆
-        response1 = self.client.post(self.url, data=data)
-        self.assertEqual(response1.status_code, 302)
-        # 退出
-        response2 = self.client.get(reverse('shop:logout'))
-        self.assertEqual(response2.status_code, 302)
-        # 检查退出状态
-        response3 = self.client.get(reverse('shop:goods_list'))
-        self.assertNotContains(response3, reverse('shop:logout'))
-
     def test_is_logged(self):
         data = {
             'username': '123',
             'email': 'a@b.com',
             'password': hashlib.sha256(b'12345678').hexdigest(),
-            }
+        }
         User.objects.create(**data)
 
         # 登陆
@@ -823,3 +797,59 @@ class LoginViewTest(TestCase):
         # 登陆
         response3 = self.client.get(self.url, data=data)
         self.assertEqual(response3.status_code, 302)
+
+
+class LogoutViewTest(TestCase):
+    """退出登陆视图测试"""
+
+    def test_user_logout(self):
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        User.objects.create(**data)
+
+        # 登陆
+        response1 = self.client.post(reverse('shop:login'), data=data)
+        self.assertEqual(response1.status_code, 302)
+        # 退出
+        response2 = self.client.get(reverse('shop:logout'))
+        self.assertEqual(response2.status_code, 302)
+        # 检查退出状态
+        response3 = self.client.get(reverse('shop:goods_list'))
+        self.assertNotContains(response3, reverse('shop:logout'))
+
+
+class BaseViewTest(TestCase):
+    """基本（通用）视图测试"""
+
+    def test_user_center_enter(self):
+        # 已登录状态
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+
+        User.objects.create(**data)
+        self.client.post(reverse('shop:login'), data=data)
+
+        response2 = self.client.get(reverse('shop:goods_list'))
+        self.assertContains(response2, reverse('shop:logout'))
+
+    def test_logged_user_is_no_found(self):
+        # 已登录状态，但用户被删除
+        data = {
+            'username': '123',
+            'email': 'a@b.com',
+            'password': hashlib.sha256(b'12345678').hexdigest(),
+        }
+        user = User.objects.create(**data)
+
+        self.client.post(reverse('shop:login'), data=data)
+        user.delete()
+
+        response2 = self.client.get(reverse('shop:goods_list'))
+        self.assertEqual(response2.status_code, 200)
+        self.assertNotContains(response2, reverse('shop:logout'))
