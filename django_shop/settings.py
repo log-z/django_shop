@@ -130,4 +130,4 @@ MEDIA_URL = '/media/'
 # Session
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-SESSION_COOKIE_AGE = 604800
+SESSION_COOKIE_AGE = 604800   # 2 week

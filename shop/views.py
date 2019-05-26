@@ -26,7 +26,7 @@ def associate_user_to_client(request, user_id):
     """关联用户登陆到客户端"""
 
     if user_id is None:
-        del request.session['user_id']
+        request.session.flush()
     else:
         request.session['user_id'] = user_id
 
