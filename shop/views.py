@@ -37,7 +37,25 @@ def redirect_to_index():
     return HttpResponseRedirect(reverse('shop:goods_list'))
 
 
-class GoodsListView(generic.ListView):
+class BasicUserView(generic.base.ContextMixin):
+    """可提供用户信息的基本视图
+
+    是所有需要使用用户信息的视图的基类。
+    这并不是个直接可用的视图（至少目前是这样）。
+    """
+
+    def get_context_data(self, **kwargs):
+        request = kwargs.pop('request')
+        object_list = {
+            # 添加当前用户context
+            'current_user': get_current_user(request),
+        }
+
+        kwargs.update(object_list)
+        return super().get_context_data(**kwargs)
+
+
+class GoodsListView(generic.ListView, BasicUserView):
     """商品列表视图"""
 
     template_name = 'shop/goods_list.html'
@@ -58,7 +76,7 @@ class GoodsListView(generic.ListView):
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        object_list = super().get_context_data(**kwargs)
+        object_list = super().get_context_data(request=self.request, kwargs=kwargs)
 
         # 添加搜索词到context
         if 'g' in self.request.GET:
@@ -68,25 +86,20 @@ class GoodsListView(generic.ListView):
         if 's' in self.request.GET:
             object_list['seller'] = get_object_or_404(User, id=self.request.GET['s'])
 
-        # 添加当前用户context
-        object_list['current_user'] = get_current_user(self.request)
-
         return object_list
 
 
-class GoodsDetailView(generic.DetailView):
+class GoodsDetailView(generic.DetailView, BasicUserView):
     """商品详情视图"""
 
     model = Goods
     template_name = 'shop/goods_detail.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        object_list = super().get_context_data(**kwargs)
+        object_list = super().get_context_data(request=self.request, **kwargs)
 
         # 添加商家到context
         object_list['seller'] = self.object.seller
-        # 添加当前用户context
-        object_list['current_user'] = get_current_user(self.request)
 
         return object_list
 
