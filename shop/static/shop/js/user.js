@@ -70,10 +70,10 @@ function login_submit() {
     return checked;
 }
 
-window.onload = () => {
+window.addLoadEvent(() => {
     let register_form = document.querySelector('#user_register_form');
     if (register_form) register_form.onsubmit = register_submit;
 
     let login_form = document.querySelector('#user_login_form');
     if (login_form) login_form.onsubmit = login_submit;
-};
+});

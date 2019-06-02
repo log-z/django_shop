@@ -206,8 +206,34 @@ class LoginView(generic.FormView):
         return self.form_invalid(response_form)
 
 
-def logout(request):
-    """退出用户登陆"""
+def logout_view(request):
+    """退出用户登陆视图"""
 
     associate_user_to_client(request, None)
     return HttpResponseRedirect(reverse('shop:login'))
+
+
+class MemberCenterView(generic.TemplateView, BasicUserView):
+    """个人中心视图"""
+
+    template_name = 'shop/center/member_center/member_info.html'
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(request=self.request, kwargs=kwargs)
+
+
+def center_enter_view(request):
+    """用户中心统一入口视图"""
+
+    user = get_current_user(request)
+    center_url = reverse('shop:login')
+
+    if user is not None:
+        if user.type_id == 1:
+            center_url = reverse('shop:member_center')
+        if user.type_id == 2:
+            center_url = reverse('shop:member_center')
+        if user.type_id == 3:
+            center_url = reverse('shop:member_center')
+
+    return HttpResponseRedirect(center_url)

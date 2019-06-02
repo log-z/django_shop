@@ -1,0 +1,30 @@
+{% extends 'shop/center/base_center.html' %}
+
+
+{% block header_subtitle %}
+  <a class="sub" href="{% url 'shop:center' %}">{{ current_user.username }}</a>
+{% endblock %}
+
+
+{% block center_title %}
+  个人中心
+{% endblock %}
+
+
+{% block center_menu %}
+  <div class="menu-group">
+    <div class="title">基本</div>
+    <ul class="menu">
+      <li id="tab-info"><a href="#">个人信息</a></li>
+      <li id="tab-shipping-address"><a href="#">收货地址</a></li>
+      <li id="tab-apply-for-business"><a href="#">申请成为商家</a></li>
+    </ul>
+  </div>
+  <div class="menu-group">
+    <div class="title">安全</div>
+    <ul class="menu">
+      <li id="tab-change-password"><a href="#">修改密码</a></li>
+      <li id="tab-change-email"><a href="#">修改安全邮箱</a></li>
+    </ul>
+  </div>
+{% endblock %}

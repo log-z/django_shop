@@ -6,6 +6,7 @@
     {% block tag_title %}商城·Shop{% endblock %}
   </title>
   <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+  <script src="{% static 'shop/js/base.js' %}"></script>
 </head>
 <body>
 <header>
@@ -22,7 +23,7 @@
   </form>
   <div class="actionbar">
     {% if current_user %}
-      <a class="action" href="#">{{ current_user.username }}</a>
+      <a class="action" href="{% url 'shop:center' %}">{{ current_user.username }}</a>
       <a class="action" href="{% url 'shop:logout' %}">退出</a>
     {% else %}
       <a class="action" href="{% url 'shop:register' %}">注册</a>

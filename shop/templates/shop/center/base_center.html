@@ -1,0 +1,29 @@
+{% extends 'shop/base.html' %}
+
+
+{% block header_subtitle %}
+  <a class="sub" href="{% url 'shop:center' %}">{{ current_user.username }}</a>
+{% endblock %}
+
+
+{% block main %}
+  <h1>
+    {% block center_title %}{% endblock %}
+  </h1>
+  <div class="tab menu-tab">
+    <nav>
+      {% block center_menu %}{% endblock %}
+    </nav>
+    <div class="tab-content">
+      {% block center_content %}{% endblock %}
+    </div>
+  </div>
+  <script>
+    // 突出页面对应的标签菜单选项
+    window.addLoadEvent(() => {
+        let tab_content = document.querySelector('#tab-content');
+        let tab_selector = tab_content.getAttribute('tab');
+        document.querySelector(tab_selector).classList.add('active');
+    })
+  </script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'shop/center/member_center.html' %}
+
+
+{% block center_content %}
+  <div id="tab-content" tab="#tab-info"></div>
+  {% if current_user %}
+    <table>
+      <tr>
+        <td>用户名：</td>
+        <td>{{ current_user.username }}</td>
+      </tr>
+      <tr>
+        <td>email：</td>
+        <td>{{ current_user.email }}</td>
+      </tr>
+      <tr>
+        <td>用户类型：</td>
+        <td>{{ current_user.type.typename }}</td>
+      </tr>
+    </table>
+  {% endif %}
+{% endblock %}

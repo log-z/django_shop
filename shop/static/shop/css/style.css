@@ -5,6 +5,8 @@
     --primary-text-color-dark: rgba(0, 0, 0, .9);
     --secondary-text-color-light: rgba(255, 255, 255, .7);
     --secondary-text-color-dark: rgba(0, 0, 0, .7);
+    --tertiary-text-color-light: rgba(255, 255, 255, .5);
+    --tertiary-text-color-dark: rgba(0, 0, 0, .5);
     --divider-color-dark: rgba(0, 0, 0, .15);
     --divider-color-light: rgba(255, 255, 255, .15);
 }
@@ -359,4 +361,57 @@ ul.goods-list li .seller {
 
 .rlf a.action {
     color: var(--primary-color);
+}
+
+
+/*    注册登陆表单    */
+.menu-tab {
+    display: flex;
+    --action-hover-bg: rgba(0, 0, 0, .02)
+}
+
+.menu-tab > nav {
+    width: 160px;
+    color: var(--secondary-text-color-dark);
+    border-right: var(--divider-color-dark) 1px solid;
+    --item-padding: 6px 12px;
+}
+
+.menu-tab > nav .menu-group {
+    margin-bottom: 24px;
+}
+
+.menu-tab > nav .menu-group .title {
+    color: var(--tertiary-text-color-dark);
+    padding: var(--item-padding);
+    font-size: 14px;
+}
+
+.menu-tab > nav ul.menu {
+    margin: 0;
+    padding: 0;
+}
+
+.menu-tab > nav ul.menu li {
+    list-style: none;
+}
+
+.menu-tab > nav ul.menu li > a {
+    padding: var(--item-padding);
+    display: block;
+    text-decoration: none;
+}
+.menu-tab > nav ul.menu li > a:hover {
+    background: var(--action-hover-bg);
+}
+
+.menu-tab > nav ul.menu li.active > a {
+    color: var(--primary-color);
+    background: var(--action-hover-bg);
+    border: var(--divider-color-dark) 1px solid;
+    border-right: none;
+}
+
+.menu-tab > .tab-content {
+    padding-left: 16px;
 }
