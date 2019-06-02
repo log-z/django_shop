@@ -226,8 +226,10 @@ def center_enter_view(request):
     """用户中心统一入口视图"""
 
     user = get_current_user(request)
+    # 用户未登录时重定向到登录页面
     center_url = reverse('shop:login')
 
+    # 判断用户类型并跳转到合适的用户中心
     if user is not None:
         if user.type_id == 1:
             center_url = reverse('shop:member_center')

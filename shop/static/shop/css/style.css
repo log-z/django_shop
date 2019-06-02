@@ -364,7 +364,8 @@ ul.goods-list li .seller {
 }
 
 
-/*    注册登陆表单    */
+/*    菜单式标签页    */
+
 .menu-tab {
     display: flex;
     --action-hover-bg: rgba(0, 0, 0, .02)
