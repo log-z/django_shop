@@ -1,8 +1,9 @@
+from django.http import HttpRequest
 from django.views import generic
-from django.shortcuts import reverse, get_object_or_404, HttpResponseRedirect
+from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect
 from django.db.utils import IntegrityError
 
-from .models import User, Goods
+from .models import User, UserType, Goods
 from .forms import RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm
 
 
@@ -35,6 +36,68 @@ def redirect_to_index():
     """重定向到首页"""
 
     return HttpResponseRedirect(reverse('shop:goods_list'))
+
+
+def user_auth(usertype, error_viewname=None):
+    """用户授权管理修饰器
+
+    可修饰以下种类的函数：
+        - 一般视图函数，该函数的第一个参数用来接收 request 对象。
+        - 视图类中的类似于 get() 和 post() 等的函数，这些函数会返回一个 HttpResponse 。
+
+    Parameters
+    ----------
+    usertype: 允许访问指定视图的用户类型名称，可以是 str 或 [str, ...] 或 (str, ...) 。
+
+    error_viewname: 当授权失败后需要跳转到的视图名称。默认为403错误视图。
+
+    Examples
+    --------
+    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:center')
+    def logout_view(request):
+        return ...
+    """
+
+    if not isinstance(usertype, str) and not isinstance(usertype, (list, tuple)):
+        raise TypeError('parameter "usertype" must be str, list or tuple')
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # 检查参数
+            try:
+                first_arg = args[0]
+            except IndexError:
+                raise IndexError('first-parameter is not exist, The first-parameter must be django.views.View or '
+                                 'django.http.HttpRequest')
+
+            # 获取 request 对象
+            if isinstance(first_arg, generic.View):
+                request = first_arg.request
+            elif isinstance(first_arg, HttpRequest):
+                request = first_arg
+            else:
+                raise TypeError(f'{type(first_arg)} is not django.views.View or django.http.HttpRequest object, '
+                                'The first-parameter must be django.views.View or django.http.HttpRequest')
+
+            # 获取当前用户的类型
+            current_user = get_current_user(request)
+            current_usertype = current_user.type if current_user else None
+
+            # 用户类型认证
+            if isinstance(usertype, str):
+                if current_usertype == UserType.objects.get(typename=usertype):
+                    return func(*args, **kwargs)
+            elif isinstance(usertype, (list, tuple)):
+                auth_usertype = [UserType.objects.get(typename=t) for t in usertype]
+                if current_usertype in auth_usertype:
+                    return func(*args, **kwargs)
+
+            if error_viewname is None:
+                return HttpResponseRedirect(reverse('shop:error_403'))
+            else:
+                return HttpResponseRedirect(reverse(error_viewname))
+        return wrapper
+    return decorator
 
 
 class BasicUserView(generic.base.ContextMixin):
@@ -213,7 +276,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('shop:login'))
 
 
-class MemberCenterView(generic.TemplateView, BasicUserView):
+class MemberInfoView(generic.TemplateView, BasicUserView):
     """个人中心视图"""
 
     template_name = 'shop/center/member_center/member_info.html'
@@ -221,21 +284,34 @@ class MemberCenterView(generic.TemplateView, BasicUserView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(request=self.request, kwargs=kwargs)
 
+    @user_auth(usertype='normal')
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
+
+@user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:login')
 def center_enter_view(request):
     """用户中心统一入口视图"""
 
     user = get_current_user(request)
-    # 用户未登录时重定向到登录页面
-    center_url = reverse('shop:login')
+    center_url = None
 
     # 判断用户类型并跳转到合适的用户中心
     if user is not None:
-        if user.type_id == 1:
-            center_url = reverse('shop:member_center')
-        if user.type_id == 2:
-            center_url = reverse('shop:member_center')
-        if user.type_id == 3:
-            center_url = reverse('shop:member_center')
+        if user.type == UserType.objects.get(typename='normal'):
+            center_url = reverse('shop:member_info')
+        elif user.typp == UserType.objects.get(typename='seller'):
+            center_url = reverse('shop:member_info')
+        elif user.type == UserType.objects.get(typename='admin'):
+            center_url = reverse('shop:member_info')
 
-    return HttpResponseRedirect(center_url)
+    if center_url is not None:
+        return HttpResponseRedirect(center_url)
+    else:
+        return redirect_to_index()
+
+
+def error_403_view(request):
+    """403错误视图"""
+
+    return render(request, template_name='shop/error_403.html', status=403)

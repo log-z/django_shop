@@ -31,6 +31,12 @@ class UserType(models.Model):
     def __str__(self):
         return self.typename
 
+    def __eq__(self, other):
+        if isinstance(other, UserType):
+            return self.description == other.description
+        else:
+            return False
+
 
 class User(models.Model):
     """用户模型"""
