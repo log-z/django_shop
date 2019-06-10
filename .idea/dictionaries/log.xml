@@ -3,6 +3,7 @@
     <words>
       <w>bcrypt</w>
       <w>usertype</w>
+      <w>viewname</w>
     </words>
   </dictionary>
 </component>

@@ -47,19 +47,26 @@ def user_auth(usertype, error_viewname=None):
 
     Parameters
     ----------
-    usertype: 允许访问指定视图的用户类型名称，可以是 str 或 [str, ...] 或 (str, ...) 。
+    usertype: 允许访问指定视图的用户类型名称，该参数类型可以是 None 或 str 或它们的组成的列表和元组。
+              用户类型名称为 None 代表未登录的访客。
 
     error_viewname: 当授权失败后需要跳转到的视图名称。默认为403错误视图。
 
     Examples
     --------
-    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:center')
+    @user_auth(usertype='admin')
     def logout_view(request):
+        return ...
+
+    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:center')
+    def get(self, request, *args, **kwargs):
         return ...
     """
 
-    if not isinstance(usertype, str) and not isinstance(usertype, (list, tuple)):
-        raise TypeError('parameter "usertype" must be str, list or tuple')
+    if usertype is not None\
+            and not isinstance(usertype, str)\
+            and not isinstance(usertype, (list, tuple)):
+        raise TypeError('parameter "usertype" must be None, str, list or tuple')
 
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -84,15 +91,18 @@ def user_auth(usertype, error_viewname=None):
             current_usertype = current_user.type if current_user else None
 
             # 用户类型认证
-            if isinstance(usertype, str):
-                if current_usertype == UserType.objects.get(typename=usertype):
-                    return func(*args, **kwargs)
+            authorized = False
+            if usertype is None:
+                authorized = current_usertype is None
+            elif isinstance(usertype, str):
+                authorized = current_usertype == UserType.objects.get(typename=usertype)
             elif isinstance(usertype, (list, tuple)):
-                auth_usertype = [UserType.objects.get(typename=t) for t in usertype]
-                if current_usertype in auth_usertype:
-                    return func(*args, **kwargs)
+                auth_usertype = [UserType.objects.get(typename=t) if t else None for t in usertype]
+                authorized = current_usertype in auth_usertype
 
-            if error_viewname is None:
+            if authorized:
+                return func(*args, **kwargs)
+            elif error_viewname is None:
                 return HttpResponseRedirect(reverse('shop:error_403'))
             else:
                 return HttpResponseRedirect(reverse(error_viewname))
@@ -173,16 +183,12 @@ class RegisterView(generic.FormView):
     form_class = RegisterFEForm
     template_name = 'shop/register.html'
 
+    @user_auth(usertype=None, error_viewname='shop:logout')
     def get(self, request, *args, **kwargs):
-        if get_current_user(request) is not None:
-            return redirect_to_index()
-        else:
-            return self.render_to_response(self.get_context_data())
+        return super().get(request, *args, **kwargs)
 
+    @user_auth(usertype=None, error_viewname='shop:logout')
     def post(self, request, *args, **kwargs):
-        if get_current_user(request) is not None:
-            return redirect_to_index()
-
         request_form = RegisterFEForm(request.POST)
         username = request_form['username'].value()
         email = request_form['email'].value()
@@ -229,16 +235,12 @@ class LoginView(generic.FormView):
     form_class = LoginFEForm
     template_name = 'shop/login.html'
 
+    @user_auth(usertype=None, error_viewname='shop:logout')
     def get(self, request, *args, **kwargs):
-        if get_current_user(request) is not None:
-            return redirect_to_index()
-        else:
-            return self.render_to_response(self.get_context_data())
+        return super().get(request, *args, **kwargs)
 
+    @user_auth(usertype=None, error_viewname='shop:logout')
     def post(self, request, *args, **kwargs):
-        if get_current_user(request) is not None:
-            return redirect_to_index()
-
         request_form = LoginFEForm(request.POST)
         username = request_form['username'].value()
         password = request_form['password'].value()
