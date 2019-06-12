@@ -11,7 +11,7 @@
    $ pip install -r requirements.txt
    ```
      
-2. 数据库迁移（初次使用可跳过）。如果已经存在旧版本项目，那么请迁移数据库到最新版本。通过以下指令即可执行迁移。
+2. 数据库迁移。初次使用前，或者更新代码后，都请务必迁移数据库到最新版本。通过以下指令即可完成迁移。
 
    ```
    $ python manage.py migrate
@@ -23,8 +23,27 @@
    $ python manage.py runserver
    ```
 
+## 测试与维护
 
-## TODO
+-  执行单元测试。
+
+   ```
+   $ python django test shop
+   ```
+   
+-  清理数据库中已过期的 Session 记录。Django 不会主动清理已过期的 Session 数据，所以请你通过配置计划任务的方式定时执行以下命令，清理掉不必要的数据。
+
+   ```
+   $ python manage.py clearsessions
+   ```
+
+
+## 存在问题
+
+1. 商品管理尚未实现，商品的创建、修改和删除暂时需要通过管理页面操作，管理页面地址默认是 ``http://127.0.0.1:8000/admin`` 。管理员账号的创建请参考[官方文档](https://docs.djangoproject.com/zh-hans/2.1/intro/tutorial02/#introducing-the-django-admin)。
+
+
+## TODO LIST
 
    * [x] 浏览商品
       * [x] 商品列表 [测试通过]
@@ -51,8 +70,3 @@
       * [ ] 直接购买
       * [ ] 购物车
    * [ ] ……
-
-
-## 存在问题
-
-1. 商品管理尚未实现，商品的创建、修改和删除暂时需要通过管理页面操作，管理页面地址默认是 ``http://127.0.0.1:8000/admin`` 。管理员账号的创建请参考[官方文档](https://docs.djangoproject.com/zh-hans/2.1/intro/tutorial02/#introducing-the-django-admin)。
