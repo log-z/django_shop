@@ -2,6 +2,7 @@
   <dictionary name="log">
     <words>
       <w>bcrypt</w>
+      <w>clearsessions</w>
       <w>usertype</w>
       <w>viewname</w>
     </words>

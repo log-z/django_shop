@@ -4,26 +4,8 @@
 {% block main %}
   <div class="rlf">
     <form id="user_register_form" class="card" action="" method="post">
-    {% csrf_token %}
-
       <h1>注册</h1>
-      <table>
-        {% for field in form %}
-          <tr>
-            <td>{{ field.label_tag  }}</td>
-            <td>{{ field  }}</td>
-          </tr>
-          <tr class="error">
-            <td colspan="2">
-              <ul>
-                {% for error in field.errors %}
-                  <li>{{ error|escape }}</li>
-                {% endfor %}
-              </ul>
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
+      {% include 'shop/inc/table_form.html' %}
       <div class="actionbar">
         <input class="action card" type="submit" value="注册">
         <a class="action" href="{% url 'shop:login' %}">已有账号，我要登陆</a>

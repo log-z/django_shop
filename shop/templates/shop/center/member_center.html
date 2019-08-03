@@ -15,7 +15,7 @@
   <div class="menu-group">
     <div class="title">基本</div>
     <ul class="menu">
-      <li id="tab-info"><a href="#">个人信息</a></li>
+      <li id="tab-info"><a href="{% url 'shop:member_info' %}">个人信息</a></li>
       <li id="tab-shipping-address"><a href="#">收货地址</a></li>
       <li id="tab-apply-for-business"><a href="#">申请成为商家</a></li>
     </ul>
@@ -23,8 +23,7 @@
   <div class="menu-group">
     <div class="title">安全</div>
     <ul class="menu">
-      <li id="tab-change-password"><a href="#">修改密码</a></li>
-      <li id="tab-change-email"><a href="#">修改安全邮箱</a></li>
+      <li id="tab-change-email"><a href="{% url 'shop:change_member_info' %}">修改信息</a></li>
     </ul>
   </div>
 {% endblock %}

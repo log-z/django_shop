@@ -87,6 +87,6 @@ def before_user_save(_=None, instance=None, **__):
     except User.DoesNotExist:
         old_object = None
 
-    if not old_object or not old_object.check_password(instance.password):
+    if not old_object or old_object.password != instance.password:
         salt = bcrypt.gensalt(rounds=User.SALT_ROUNDS, prefix=User.SALT_PREFIX)
         instance.password = bcrypt.hashpw(password=instance.password.encode('utf-8'), salt=salt).decode('utf-8')

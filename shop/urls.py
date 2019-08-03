@@ -16,5 +16,13 @@ urlpatterns = [
     # 用户中心
     path('center', views.center_enter_view, name='center'),
     path('center/member', views.MemberInfoView.as_view(), name='member_info'),
+    path('center/member/change_info', views.ChangeMemberInfoView.as_view(), name='change_member_info'),
+
+    # 错误页面
     path('error_403', views.error_403_view, name='error_403'),
+
+    # API
+    path('api/errors/unauthorized', views.UnauthorizedErrorApiView.as_view(), name='api_unauthorized_error'),
+    path('api/errors/internal_server', views.ServerErrorApiView.as_view(), name='api_server_error'),
+    path('api/user/email', views.UserEmailAPIView.as_view(), name='api_user_email')
 ]

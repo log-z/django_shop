@@ -26,3 +26,10 @@ class RegisterFEForm(LoginFEForm, RegisterBEForm):
 
     password_again = forms.CharField(label='重复密码', min_length=8, max_length=20, widget=forms.PasswordInput())
     field_order = ['username', 'email', 'password', 'password_again']
+
+
+class ChangeEmailForm(forms.Form):
+    """修改邮箱表单"""
+
+    curr_email = forms.EmailField(label='当前邮箱', min_length=1)
+    new_email = forms.EmailField(label='新邮箱', min_length=1)

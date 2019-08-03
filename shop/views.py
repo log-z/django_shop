@@ -1,10 +1,13 @@
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseForbidden
 from django.views import generic
 from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, Error as DBError
 
 from .models import User, UserType, Goods
-from .forms import RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm
+from .forms import RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm, ChangeEmailForm
+from .utils import APIResultBuilder
+
+from django.views.decorators.csrf import csrf_exempt
 
 
 def get_current_user(request):
@@ -63,8 +66,8 @@ def user_auth(usertype, error_viewname=None):
         return ...
     """
 
-    if usertype is not None\
-            and not isinstance(usertype, str)\
+    if usertype is not None \
+            and not isinstance(usertype, str) \
             and not isinstance(usertype, (list, tuple)):
         raise TypeError('parameter "usertype" must be None, str, list or tuple')
 
@@ -106,7 +109,9 @@ def user_auth(usertype, error_viewname=None):
                 return HttpResponseRedirect(reverse('shop:error_403'))
             else:
                 return HttpResponseRedirect(reverse(error_viewname))
+
         return wrapper
+
     return decorator
 
 
@@ -149,6 +154,7 @@ class GoodsListView(generic.ListView, BasicUserView):
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        # 添加用户对象到 context
         object_list = super().get_context_data(request=self.request, kwargs=kwargs)
 
         # 添加搜索词到context
@@ -169,6 +175,7 @@ class GoodsDetailView(generic.DetailView, BasicUserView):
     template_name = 'shop/goods_detail.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        # 添加用户对象到 context
         object_list = super().get_context_data(request=self.request, **kwargs)
 
         # 添加商家到context
@@ -284,9 +291,25 @@ class MemberInfoView(generic.TemplateView, BasicUserView):
     template_name = 'shop/center/member_center/member_info.html'
 
     def get_context_data(self, **kwargs):
+        # 添加用户对象到 context
         return super().get_context_data(request=self.request, kwargs=kwargs)
 
     @user_auth(usertype='normal')
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
+class ChangeMemberInfoView(generic.FormView, BasicUserView):
+    """修改个人信息视图"""
+
+    form_class = ChangeEmailForm
+    template_name = 'shop/center/member_center/change_info.html'
+
+    def get_context_data(self, **kwargs):
+        # 添加用户对象到 context
+        return super().get_context_data(request=self.request, kwargs=kwargs)
+
+    @user_auth(usertype=['normal', 'seller', 'admin'])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -317,3 +340,109 @@ def error_403_view(request):
     """403错误视图"""
 
     return render(request, template_name='shop/error_403.html', status=403)
+
+
+class APIView(generic.View):
+    """API视图的基类"""
+
+    _option_list = ['pull', 'create', 'update', 'delete']
+
+    def __int__(self):
+        self.result_builder = None
+        super().__init__()
+
+    @csrf_exempt
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            setattr(self, 'result_builder', APIResultBuilder())
+            return super().dispatch(request, *args, **kwargs)
+        except Exception:
+            return HttpResponseRedirect(reverse('shop:api_server_error'))
+
+    def get(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Getting is not supported.') \
+            .as_json_response(status=405)
+
+    def post(self, request, *args, **kwargs):
+        if 'option' in request.POST and request.POST['option'] in self._option_list:
+            handler = getattr(self, request.POST['option'])
+            return handler(request, *args, **kwargs)
+
+        return self.result_builder \
+            .set_error('Failure to match the appropriate option.') \
+            .as_json_response(status=405)
+
+    def pull(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Pulls is not supported.') \
+            .as_json_response(status=405)
+
+    def create(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Creation is not supported.') \
+            .as_json_response(status=405)
+
+    def update(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Updates are not supported.') \
+            .as_json_response(status=405)
+
+    def delete(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Deletion are not supported.') \
+            .as_json_response(status=405)
+
+
+class UnauthorizedErrorApiView(APIView):
+    """未经授权错误API"""
+
+    def get(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('No access for unauthorized.') \
+            .as_json_response(status=403)
+
+
+class ServerErrorApiView(APIView):
+    """内部服务错误API"""
+
+    def get(self, request, *args, **kwargs):
+        return self.result_builder \
+            .set_error('Internal server error.') \
+            .as_json_response(status=500)
+
+
+class UserEmailAPIView(APIView):
+    """用户邮箱API"""
+
+    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:api_unauthorized_error')
+    def update(self, request, *args, **kwargs):
+        if not ChangeEmailForm(request.POST).is_valid():
+            return self.result_builder \
+                .set_error('Parameters format not correct error.') \
+                .as_json_response(412)
+
+        curr_email = request.POST['curr_email']
+        new_email = request.POST['new_email']
+        user = get_current_user(request)
+
+        if user is None:
+            return self.result_builder \
+                .set_error('This user is does not exist.') \
+                .as_json_response(410)
+        elif user.email == curr_email:
+            try:
+                user.email = new_email
+                user.save()
+            except DBError:
+                return self.result_builder \
+                    .set_error('Error while changing user-email.') \
+                    .as_json_response(500)
+
+            return self.result_builder \
+                .set_result('User-email changed successful.') \
+                .as_json_response(200)
+        else:
+            return self.result_builder \
+                .set_error('The current user-email is incorrect.') \
+                .as_json_response(412)
