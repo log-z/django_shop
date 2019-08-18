@@ -1,4 +1,10 @@
-<form submit-type="restful" method="post" option="update" action="{% url 'shop:api_user_email' %}">
-  {% include 'shop/inc/table_form.html' %}
-  <input type="submit" value="修改邮箱">
-</form>
+<div class="b-form card">
+  <form submit-type="restful" method="post" option="update" action="{% url 'shop:api_user_email' %}">
+    <h2>邮箱</h2>
+    {% include 'shop/inc/table_form.html' %}
+
+    <div class="actionbar">
+      <input class="action card" type="submit" value="修改邮箱">
+    </div>
+  </form>
+</div>

@@ -44,7 +44,7 @@ body > header, body > footer {
 }
 
 .card {
-    box-shadow: rgba(0, 0, 0, .2) 0 6px 24px;
+    box-shadow: rgba(0, 0, 0, .2) 0 4px 12px;
     border-radius: 4px;
 }
 
@@ -252,68 +252,54 @@ ul.goods-list li .seller {
 }
 
 
-/*    注册登陆表单    */
+/*    标准表单    */
 
-.rlf {
-    display: flex;
-    justify-content: center;
-}
-
-.rlf form {
-    padding: 32px 64px;
-    margin-top: 32px;
+.b-form form {
+    padding: 8px 16px;
+    margin-bottom: 32px;
     background: #f7f7f7;
-}
-
-.rlf h1 {
     color: var(--secondary-text-color-dark);
-    text-align: center;
 }
 
-.rlf h1:after {
-    margin: 24px auto;
-    width: 1em;
-    height: 4px;
-    content: '';
-    display: block;
-    background: var(--primary-color);
-
+.b-form h2 {
+    margin: 24px 8px 2px;
+    font-weight: lighter;
+    font-size: 28px;
 }
 
-.rlf table {
+.b-form table {
     border-collapse: collapse;
-    font-size: 18px;
     table-layout: fixed;
 }
 
-.rlf tr {
+.b-form tr {
     border-bottom: var(--divider-color-dark) 1px solid;
 }
 
-.rlf tr.error {
+.b-form tr.error {
     border: none;
 }
 
-.rlf td {
+.b-form td {
     padding: 24px 8px 4px;
 }
 
-.rlf tr.error td {
+.b-form tr.error td {
     padding: 4px 8px 0;
     font-size: 14px;
     color: var(--accent-color);
 }
 
-.rlf tr.error ul {
+.b-form tr.error ul {
     padding: 0;
     margin: 0;
 }
 
-.rlf tr.error li {
+.b-form tr.error li {
     list-style: none;
 }
 
-.rlf tr.error li:before {
+.b-form tr.error li:before {
     content: "!";
     width: 1em;
     line-height: 1em;
@@ -326,32 +312,32 @@ ul.goods-list li .seller {
     text-align: center;
 }
 
-.rlf label {
-    color: var(--secondary-text-color-dark);
+.b-form label {
 }
 
-.rlf input {
+.b-form input {
+    color: var(--secondary-text-color-dark);
     outline: none;
     font-size: inherit;
     background: transparent;
 }
 
-.rlf input[type=text], .rlf input[type=password], .rlf input[type=email], .rlf input[type=number] {
+.b-form input[type=text], .b-form input[type=password], .b-form input[type=email], .b-form input[type=number] {
     border: none;
 }
 
-.rlf .actionbar {
+.b-form .actionbar {
     margin: 32px 0 24px;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
 }
 
-.rlf .action {
+.b-form .action {
     padding: 12px 32px;
 }
 
-.rlf input[type=submit].action {
+.b-form input[type=submit].action {
     border: none;
     color: var(--primary-text-color-light);
     background: var(--primary-color);
@@ -359,8 +345,35 @@ ul.goods-list li .seller {
     flex-shrink: 1;
 }
 
-.rlf a.action {
+.b-form a.action {
     color: var(--primary-color);
+}
+
+
+/*    注册登陆表单    */
+
+.rl-form {
+    display: flex;
+    justify-content: center;
+}
+
+.rl-form form {
+    padding: 32px 64px;
+    margin-top: 32px;
+}
+
+.rl-form h1 {
+    color: var(--secondary-text-color-dark);
+    text-align: center;
+}
+
+.rl-form h1:after {
+    margin: 24px auto;
+    width: 1em;
+    height: 4px;
+    content: '';
+    display: block;
+    background: var(--primary-color);
 }
 
 
