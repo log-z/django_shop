@@ -415,4 +415,45 @@ ul.goods-list li .seller {
 
 .menu-tab > .tab-content {
     padding-left: 16px;
+    flex-grow: 1;
+}
+
+
+/*    用户中心 - 用户信息栏    */
+
+#user-info-bar {
+    display: flex;
+}
+
+#user-info-bar > .avatar {
+    height: 160px;
+    width: 160px;
+    margin: 0 32px;
+    background: #93a2ab;
+    border-radius: 80px;
+}
+
+#user-info-bar > .info {
+    flex-grow: 1;
+}
+
+#user-info-bar > .info .user-type {
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--primary-text-color-light);
+    background: var(--tertiary-text-color-dark);
+}
+
+#user-info-bar > .info > .name {
+    padding: 4px 0;
+    font-size: 50px;
+    font-weight: lighter;
+}
+
+#user-info-bar > .info .email {
+    margin-left: 8px;
+}
+
+#user-info-bar > .info .description {
+    color: var(--secondary-text-color-dark);
 }

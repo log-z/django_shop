@@ -5,22 +5,5 @@
   <!-- 标签页内容与选项关系的绑定 -->
   <div id="tab-content" tab="#tab-info" hidden="hidden"></div>
 
-  {% if current_user %}
-    <table>
-      <tr>
-        <td>用户名：</td>
-        <td>{{ current_user.username }}</td>
-      </tr>
-      <tr>
-        <td>email：</td>
-        <td>{{ current_user.email }}</td>
-      </tr>
-      <tr>
-        <td>用户类型：</td>
-        <td>{{ current_user.type.typename }}</td>
-      </tr>
-    </table>
-  {% else %}
-    <div>您尚未登录，请先登录。</div>
-  {% endif %}
+  {% include 'shop/inc/user_info.html' %}
 {% endblock %}

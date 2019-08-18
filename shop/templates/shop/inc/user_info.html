@@ -1,0 +1,17 @@
+{% load static %}
+
+{% if current_user %}
+  <div id="user-info-bar">
+    <img class="avatar" src="{% static 'shop/image/default_avatar.jpg' %}">
+    <div class="info">
+      <div class="name">{{ current_user.username }}</div>
+      <div>
+        <span class="user-type">{{ current_user.type.typename }}</span>
+        <span class="email">{{ current_user.email }}</span>
+      </div>
+      <p class="description">这个人也太懒了吧，居然什么也没写（也写不了）。</p>
+    </div>
+  </div>
+{% else %}
+  <div>您尚未登录，请先登录。</div>
+{% endif %}
