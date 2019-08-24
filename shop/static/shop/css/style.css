@@ -1,14 +1,18 @@
 :root {
     --primary-color: #4f8da3;
-    --accent-color: red;
+    --accent-color: #fbb616;
+    --warning-color: #ef1646;
+    --block-color: #fbfbfb;
     --primary-text-color-light: rgba(255, 255, 255, 1);
     --primary-text-color-dark: rgba(0, 0, 0, .9);
     --secondary-text-color-light: rgba(255, 255, 255, .7);
     --secondary-text-color-dark: rgba(0, 0, 0, .7);
     --tertiary-text-color-light: rgba(255, 255, 255, .5);
     --tertiary-text-color-dark: rgba(0, 0, 0, .5);
+    --accent-text-color: red;
     --divider-color-dark: rgba(0, 0, 0, .15);
     --divider-color-light: rgba(255, 255, 255, .15);
+    --divider-color-medium: rgba(0, 0, 0, .02);
 }
 
 html, body {
@@ -43,9 +47,53 @@ body > header, body > footer {
     background: var(--primary-color);
 }
 
-.card {
+
+
+/*    卡片    */
+
+.b-card {
     box-shadow: rgba(0, 0, 0, .2) 0 4px 12px;
     border-radius: 4px;
+    background: var(--block-color);
+}
+
+
+/*    按钮    */
+
+.b-btn, .b-action {
+    color: var(--primary-text-color-light);
+    background: #989898;
+    padding: 12px 32px;
+    border: none;
+    cursor: pointer;
+}
+
+.b-btn:hover, .b-action:hover {
+    filter: brightness(1.1);
+}
+
+.b-btn-warning, .b-action-warning {
+    color: var(--primary-text-color-light);
+    background: var(--warning-color);
+}
+
+.b-btn-accent, .b-action-accent {
+    color: var(--primary-text-color-light);
+    background: var(--accent-color);
+}
+
+.b-btn-primary, .b-action-primary {
+    color: var(--primary-text-color-light);
+    background: var(--primary-color);
+}
+
+.b-btn-flat, .b-action-flat {
+    color: var(--primary-color);
+    background: transparent;
+}
+
+.b-btn-flat:hover, .b-action-flat:hover {
+    background: var(--divider-color-medium);
 }
 
 
@@ -97,26 +145,27 @@ body > header .search input[type=submit]:hover {
     background: var(--action-hover-bg);
 }
 
-body > header .actionbar {
+body > header .b-actionbar {
     margin-left: 16px;
     overflow: hidden;
     font-size: var(--action-font-size);
     border: var(--action-border);
 }
 
-body > header .action {
+body > header .b-action {
     padding: var(--action-padding);
     display: block;
     float: left;
     color: var(--action-color);
     border-right: var(--action-border);
     text-decoration: none;
+    background: transparent;
 }
-body > header .action:last-child {
+body > header .b-action:last-child {
     border-right: none;
 }
 
-body > header .action:hover {
+body > header .b-action:hover {
     background: var(--action-hover-bg);
 }
 
@@ -164,7 +213,7 @@ main ul.goods-list li .name {
 }
 
 ul.goods-list li .price {
-    color: var(--accent-color);
+    color: var(--accent-text-color);
     font-size: 24px;
 }
 
@@ -206,7 +255,7 @@ ul.goods-list li .seller {
 
 .goods-detail header .price {
     margin-bottom: 50px;
-    color: var(--accent-color);
+    color: var(--accent-text-color);
     font-size: 32px;
 }
 
@@ -216,20 +265,20 @@ ul.goods-list li .seller {
     font-size: 24px;
 }
 
-.goods-detail header .action {
+.goods-detail header .b-action {
     margin-right: 8px;
     padding: 8px 32px;
     font-size: 16px;
     border-radius: 4px;
 }
 
-.goods-detail header .action.buy-now {
-    color: var(--accent-color);
+.goods-detail header .b-action.buy-now {
+    color: var(--accent-text-color);
     background: #ffedcb;
     border: #efcca6 1px solid;
 }
 
-.goods-detail header .action.add-to-car {
+.goods-detail header .b-action.add-to-car {
     color: var(--primary-text-color-light);
     background: #ff523a;
     border: #ff523a 1px solid;
@@ -252,12 +301,17 @@ ul.goods-list li .seller {
 }
 
 
+/*    标准分节    */
+.b-section {
+    margin-bottom: 32px;
+    background: var(--block-color);
+    border: var(--divider-color-medium) 1px solid;
+}
+
 /*    标准表单    */
 
 .b-form form {
     padding: 8px 16px;
-    margin-bottom: 32px;
-    background: #f7f7f7;
     color: var(--secondary-text-color-dark);
 }
 
@@ -287,7 +341,7 @@ ul.goods-list li .seller {
 .b-form tr.error td {
     padding: 4px 8px 0;
     font-size: 14px;
-    color: var(--accent-color);
+    color: var(--accent-text-color);
 }
 
 .b-form tr.error ul {
@@ -306,47 +360,42 @@ ul.goods-list li .seller {
     margin-right: .25em;
     font-size: .5em;
     color: var(--primary-text-color-light);
-    background: var(--accent-color);
+    background: var(--accent-text-color);
     border-radius: 1em;
     display: inline-block;
     text-align: center;
 }
 
 .b-form label {
+    display: block;
 }
 
 .b-form input {
-    color: var(--secondary-text-color-dark);
     outline: none;
     font-size: inherit;
-    background: transparent;
 }
 
 .b-form input[type=text], .b-form input[type=password], .b-form input[type=email], .b-form input[type=number] {
+    width: 100%;
     border: none;
+    color: var(--secondary-text-color-dark);
+    background: transparent;
 }
 
-.b-form .actionbar {
+.b-form .b-actionbar {
     margin: 32px 0 24px;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
 }
 
-.b-form .action {
-    padding: 12px 32px;
+.b-form .b-actionbar .b-action {
+    margin-bottom: 8px;
+    margin-right: 16px;
 }
 
-.b-form input[type=submit].action {
-    border: none;
-    color: var(--primary-text-color-light);
-    background: var(--primary-color);
-    cursor: pointer;
-    flex-shrink: 1;
-}
-
-.b-form a.action {
-    color: var(--primary-color);
+.b-form .b-actionbar .b-action:last-child {
+    margin: 0;
 }
 
 
@@ -360,6 +409,8 @@ ul.goods-list li .seller {
 .rl-form form {
     padding: 32px 64px;
     margin-top: 32px;
+    display: flex;
+    flex-direction: column;
 }
 
 .rl-form h1 {

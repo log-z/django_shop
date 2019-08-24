@@ -21,13 +21,13 @@
   <form class="search" action="{% url 'shop:goods_list' %}" method="get">
     <input name="g" type="text" value="{{ search_text }}"><input type="submit" value="搜索">
   </form>
-  <div class="actionbar">
+  <div class="b-actionbar">
     {% if current_user %}
-      <a class="action" href="{% url 'shop:center' %}">{{ current_user.username }}</a>
-      <a class="action" href="{% url 'shop:logout' %}">退出</a>
+      <a class="b-action" href="{% url 'shop:center' %}">{{ current_user.username }}</a>
+      <a class="b-action" href="{% url 'shop:logout' %}">退出</a>
     {% else %}
-      <a class="action" href="{% url 'shop:register' %}">注册</a>
-      <a class="action" href="{% url 'shop:login' %}">登陆</a>
+      <a class="b-action" href="{% url 'shop:register' %}">注册</a>
+      <a class="b-action" href="{% url 'shop:login' %}">登陆</a>
     {% endif %}
   </div>
 </header>

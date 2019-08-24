@@ -5,9 +5,9 @@
   <div class="goods-detail">
     <header>
       {% if goods.image %}
-        <img class="img card" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
+        <img class="img b-card" src="{{ goods.image.url }}" alt="{{ goods.goods_name }}">
       {% else %}
-        <img class="img card" src="{% static 'shop/image/default_goods_image.png' %}" alt="{{ goods.goods_name }}">
+        <img class="img b-card" src="{% static 'shop/image/default_goods_image.png' %}" alt="{{ goods.goods_name }}">
       {% endif %}
       <form class="text" method="post">
         {% csrf_token %}
@@ -19,8 +19,8 @@
           <input id="number" name="number" type="number" value="1">
         </div>
         <div>
-          <input class="action buy-now" type="submit" value="立即购买">
-          <input class="action add-to-car" type="submit" value="加入购物车">
+          <input class="b-action buy-now" type="submit" value="立即购买">
+          <input class="b-action add-to-car" type="submit" value="加入购物车">
         </div>
       </form>
     </header>

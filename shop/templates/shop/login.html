@@ -3,12 +3,12 @@
 
 {% block main %}
   <div class="b-form rl-form">
-    <form id="user_login_form" class="card" action="" method="post">
+    <form id="user_login_form" class="b-card" action="" method="post">
       <h1>登陆</h1>
       {% include 'shop/inc/table_form.html' %}
-      <div class="actionbar">
-        <input class="action card" type="submit" value="登陆">
-        <a class="action" href="{% url 'shop:register' %}">还没账号，我要注册</a>
+      <div class="b-actionbar">
+        <input class="b-action b-action-primary b-card" type="submit" value="登陆">
+        <a class="b-action b-action-flat" href="{% url 'shop:register' %}">还没账号，我要注册</a>
       </div>
     </form>
   </div>
