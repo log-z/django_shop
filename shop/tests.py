@@ -824,32 +824,91 @@ class LogoutViewTest(TestCase):
 class BaseViewTest(TestCase):
     """基本（通用）视图测试"""
 
+    test_user_data = {
+        'username': '123',
+        'email': 'a@b.com',
+        'password': hashlib.sha256(b'12345678').hexdigest(),
+    }
+
     def test_user_center_enter(self):
         # 已登录状态
-        data = {
-            'username': '123',
-            'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-        }
-
-        User.objects.create(**data)
-        self.client.post(reverse('shop:login'), data=data)
+        User.objects.create(**self.test_user_data)
+        self.client.post(reverse('shop:login'), data=self.test_user_data)
 
         response2 = self.client.get(reverse('shop:goods_list'))
         self.assertContains(response2, reverse('shop:logout'))
 
     def test_logged_user_is_no_found(self):
         # 已登录状态，但用户被删除
-        data = {
-            'username': '123',
-            'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-        }
-        user = User.objects.create(**data)
-
-        self.client.post(reverse('shop:login'), data=data)
+        user = User.objects.create(**self.test_user_data)
+        self.client.post(reverse('shop:login'), data=self.test_user_data)
         user.delete()
 
         response2 = self.client.get(reverse('shop:goods_list'))
         self.assertEqual(response2.status_code, 200)
         self.assertNotContains(response2, reverse('shop:logout'))
+
+
+class UserEmailAPIViewTest(TestCase):
+    """用户邮箱API视图测试"""
+
+    login_url = reverse('shop:login')
+    api_url = reverse('shop:api_user_email')
+    test_user_data = {
+        'username': '123',
+        'email': 'a@b.com',
+        'password': hashlib.sha256(b'12345678').hexdigest(),
+    }
+
+    def test_update_email(self):
+        # 已登录状态，但用户被删除
+        user = User.objects.create(**self.test_user_data)
+        update_data = {
+            'curr_email': 'a@b.com',
+            'new_email': 'aaa@bbb.com',
+        }
+
+        # 未登录，失败
+        response1 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response1.url, reverse('shop:api_unauthorized_error'))
+
+        # 登陆
+        self.client.post(self.login_url, self.test_user_data)
+
+        # 已登录，但未指定操作，失败
+        response2 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response2.status_code, 405)
+        self.assertEqual(user.email, self.test_user_data['email'])
+
+        # 指定操作为“更新”
+        update_data['option'] = 'update'
+
+        # 成功
+        response3 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, 'User-email changed successful.')
+        user.refresh_from_db()
+        self.assertEqual(user.email, update_data['new_email'])
+        # 还原Email
+        user.email = update_data['curr_email']
+        user.save()
+
+        # 参数（即表单）格式错误，失败
+        update_data_temp1 = update_data.copy()
+        update_data_temp1['curr_email'] = 'abc'
+        response4 = self.client.post(self.api_url, update_data_temp1)
+        self.assertEqual(response4.status_code, 412)
+        # self.assertContains(response4, 'Parameters format not correct error.')
+
+        # 与当前邮箱不匹配，失败
+        update_data_temp2 = update_data.copy()
+        update_data_temp2['curr_email'] = update_data_temp2['new_email']
+        response5 = self.client.post(self.api_url, update_data_temp2)
+        self.assertEqual(response5.status_code, 412)
+        # self.assertContains(response5, 'The current user-email is incorrect.')
+
+        # 用户已被删除，失败
+        user.delete()
+        response6 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response6.url, reverse('shop:api_unauthorized_error'))
+        # TODO: status_code需要调整到response的json-body中

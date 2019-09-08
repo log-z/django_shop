@@ -351,6 +351,7 @@ class APIView(generic.View):
         self.result_builder = None
         super().__init__()
 
+    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:api_unauthorized_error')
     @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -415,7 +416,9 @@ class ServerErrorApiView(APIView):
 class UserEmailAPIView(APIView):
     """用户邮箱API"""
 
-    @user_auth(usertype=['normal', 'seller', 'admin'], error_viewname='shop:api_unauthorized_error')
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
     def update(self, request, *args, **kwargs):
         if not ChangeEmailForm(request.POST).is_valid():
             return self.result_builder \
@@ -426,18 +429,9 @@ class UserEmailAPIView(APIView):
         new_email = request.POST['new_email']
         user = get_current_user(request)
 
-        if user is None:
-            return self.result_builder \
-                .set_error('This user is does not exist.') \
-                .as_json_response(410)
-        elif user.email == curr_email:
-            try:
-                user.email = new_email
-                user.save()
-            except DBError:
-                return self.result_builder \
-                    .set_error('Error while changing user-email.') \
-                    .as_json_response(500)
+        if user.email == curr_email:
+            user.email = new_email
+            user.save()
 
             return self.result_builder \
                 .set_result('User-email changed successful.') \
