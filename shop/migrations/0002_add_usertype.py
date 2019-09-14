@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(blank=True, max_length=100, null=True)),
             ],
         ),
+        # TODO: 初始化用户类型之前该表还未建立，导致迁移出错（需要查看文档确定），建议分开两次迁移。
         migrations.RunPython(init_usertype, reverse_usertype),
         migrations.AddField(
             model_name='user',

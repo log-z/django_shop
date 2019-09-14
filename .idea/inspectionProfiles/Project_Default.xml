@@ -6,7 +6,7 @@
         <value>
           <list size="3">
             <item index="0" class="java.lang.String" itemvalue="submit-type" />
-            <item index="1" class="java.lang.String" itemvalue="option" />
+            <item index="1" class="java.lang.String" itemvalue="_ext_method" />
             <item index="2" class="java.lang.String" itemvalue="tab" />
           </list>
         </value>

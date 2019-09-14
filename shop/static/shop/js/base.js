@@ -15,7 +15,7 @@ function form_dataset(form) {
     let dataset = [];
     let inputs = form.querySelectorAll('input');
 
-    dataset.push('option=' + form.getAttribute('option'));
+    dataset.push('_ext_method=' + form.getAttribute('_ext_method'));
     for (let i = 0; i < inputs.length; i++) {
         dataset.push(inputs[i].name + '=' + inputs[i].value)
     }
@@ -28,10 +28,10 @@ function default_restful_handel(form, xlr) {
 
     let tips = form.querySelector('.tips');
     let data = JSON.parse(xlr.responseText);
-    if (xlr.status === 200) {
-        tips.innerText = data.result;
+    if (data.status === 200) {
+        tips.innerText = data.results;
     } else {
-        tips.innerText = data.error;
+        tips.innerText = data.errors;
         tips.classList.add('error');
     }
 }
@@ -44,8 +44,11 @@ function form_restful_init() {
         forms[i].onsubmit = ev => {
             ev.preventDefault();
             let form = ev.target;
-            let xlr = new XMLHttpRequest();
+            let tips = form.querySelector('.tips');
+            tips.innerText = null;
+            tips.classList.remove('error');
 
+            let xlr = new XMLHttpRequest();
             xlr.open(form.method, form.action, true);
             xlr.setRequestHeader('Accept', 'application/json');
             xlr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');

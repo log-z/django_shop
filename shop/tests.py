@@ -1,4 +1,5 @@
 import hashlib
+import json
 
 from django.test import TestCase, Client
 from django.shortcuts import reverse
@@ -877,16 +878,18 @@ class UserEmailAPIViewTest(TestCase):
 
         # 已登录，但未指定操作，失败
         response2 = self.client.post(self.api_url, update_data)
-        self.assertEqual(response2.status_code, 405)
+        data2 = json.loads(response2.content)
+        self.assertEqual(data2['status'], 405)
         self.assertEqual(user.email, self.test_user_data['email'])
 
         # 指定操作为“更新”
-        update_data['option'] = 'update'
+        update_data['_ext_method'] = 'update'
 
         # 成功
         response3 = self.client.post(self.api_url, update_data)
-        self.assertEqual(response3.status_code, 200)
-        self.assertContains(response3, 'User-email changed successful.')
+        data3 = json.loads(response3.content)
+        self.assertEqual(data3['status'], 200)
+        self.assertEqual(data3['results'], 'User-email changed successful.')
         user.refresh_from_db()
         self.assertEqual(user.email, update_data['new_email'])
         # 还原Email
@@ -897,18 +900,19 @@ class UserEmailAPIViewTest(TestCase):
         update_data_temp1 = update_data.copy()
         update_data_temp1['curr_email'] = 'abc'
         response4 = self.client.post(self.api_url, update_data_temp1)
-        self.assertEqual(response4.status_code, 412)
-        # self.assertContains(response4, 'Parameters format not correct error.')
+        data4 = json.loads(response4.content)
+        self.assertEqual(data4['status'], 412)
+        self.assertEqual(data4['errors'], 'Parameters format not correct error.')
 
         # 与当前邮箱不匹配，失败
         update_data_temp2 = update_data.copy()
         update_data_temp2['curr_email'] = update_data_temp2['new_email']
         response5 = self.client.post(self.api_url, update_data_temp2)
-        self.assertEqual(response5.status_code, 412)
-        # self.assertContains(response5, 'The current user-email is incorrect.')
+        data5 = json.loads(response5.content)
+        self.assertEqual(data5['status'], 412)
+        self.assertEqual(data5['errors'], 'The current user-email is incorrect.')
 
         # 用户已被删除，失败
         user.delete()
         response6 = self.client.post(self.api_url, update_data)
         self.assertEqual(response6.url, reverse('shop:api_unauthorized_error'))
-        # TODO: status_code需要调整到response的json-body中

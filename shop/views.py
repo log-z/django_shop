@@ -344,8 +344,9 @@ def error_403_view(request):
 
 class APIView(generic.View):
     """API视图的基类"""
+    # TODO: 缺少APIView的基本测试
 
-    _option_list = ['pull', 'create', 'update', 'delete']
+    api_method_names = ['pull', 'create', 'update', 'delete']
 
     def __int__(self):
         self.result_builder = None
@@ -361,37 +362,49 @@ class APIView(generic.View):
             return HttpResponseRedirect(reverse('shop:api_server_error'))
 
     def get(self, request, *args, **kwargs):
+        """推荐用于常规地获取对象"""
+
         return self.result_builder \
-            .set_error('Getting is not supported.') \
+            .set_errors('Getting is not supported.') \
             .as_json_response(status=405)
 
     def post(self, request, *args, **kwargs):
-        if 'option' in request.POST and request.POST['option'] in self._option_list:
-            handler = getattr(self, request.POST['option'])
+        """不推荐直接实现此方法，请使用更具体的pull、create、update、delete方法"""
+
+        if '_ext_method' in request.POST and request.POST['_ext_method'] in self.api_method_names:
+            handler = getattr(self, request.POST['_ext_method'])
             return handler(request, *args, **kwargs)
 
         return self.result_builder \
-            .set_error('Failure to match the appropriate option.') \
+            .set_errors('Failure to match the appropriate method.') \
             .as_json_response(status=405)
 
     def pull(self, request, *args, **kwargs):
+        """推荐用于安全地获取对象"""
+
         return self.result_builder \
-            .set_error('Pulls is not supported.') \
+            .set_errors('Pulls is not supported.') \
             .as_json_response(status=405)
 
     def create(self, request, *args, **kwargs):
+        """推荐用于创建对象（包括创建连接）"""
+
         return self.result_builder \
-            .set_error('Creation is not supported.') \
+            .set_errors('Creation is not supported.') \
             .as_json_response(status=405)
 
     def update(self, request, *args, **kwargs):
+        """推荐用于更新对象"""
+
         return self.result_builder \
-            .set_error('Updates are not supported.') \
+            .set_errors('Updates are not supported.') \
             .as_json_response(status=405)
 
     def delete(self, request, *args, **kwargs):
+        """推荐用于删除对象"""
+
         return self.result_builder \
-            .set_error('Deletion are not supported.') \
+            .set_errors('Deletion are not supported.') \
             .as_json_response(status=405)
 
 
@@ -400,7 +413,7 @@ class UnauthorizedErrorApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         return self.result_builder \
-            .set_error('No access for unauthorized.') \
+            .set_errors('No access for unauthorized.') \
             .as_json_response(status=403)
 
 
@@ -409,7 +422,7 @@ class ServerErrorApiView(APIView):
 
     def get(self, request, *args, **kwargs):
         return self.result_builder \
-            .set_error('Internal server error.') \
+            .set_errors('Internal server error.') \
             .as_json_response(status=500)
 
 
@@ -422,7 +435,7 @@ class UserEmailAPIView(APIView):
     def update(self, request, *args, **kwargs):
         if not ChangeEmailForm(request.POST).is_valid():
             return self.result_builder \
-                .set_error('Parameters format not correct error.') \
+                .set_errors('Parameters format not correct error.') \
                 .as_json_response(412)
 
         curr_email = request.POST['curr_email']
@@ -434,9 +447,9 @@ class UserEmailAPIView(APIView):
             user.save()
 
             return self.result_builder \
-                .set_result('User-email changed successful.') \
-                .as_json_response(200)
+                .set_results('User-email changed successful.') \
+                .as_json_response()
         else:
             return self.result_builder \
-                .set_error('The current user-email is incorrect.') \
+                .set_errors('The current user-email is incorrect.') \
                 .as_json_response(412)
