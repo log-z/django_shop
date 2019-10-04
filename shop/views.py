@@ -1,10 +1,11 @@
-from django.http import HttpRequest, HttpResponseForbidden
+from django.http import HttpRequest
 from django.views import generic
 from django.shortcuts import render, reverse, get_object_or_404, HttpResponseRedirect
-from django.db.utils import IntegrityError, Error as DBError
+from django.db.utils import IntegrityError
 
 from .models import User, UserType, Goods
-from .forms import RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm, ChangeEmailForm
+from .forms import (RegisterFEForm, RegisterBEForm, LoginFEForm, LoginBEForm, ChangeEmailForm, ChangePasswordFEForm,
+                    ChangePasswordBEForm)
 from .utils import APIResultBuilder
 
 from django.views.decorators.csrf import csrf_exempt
@@ -299,17 +300,32 @@ class MemberInfoView(generic.TemplateView, BasicUserView):
         return super().get(request, *args, **kwargs)
 
 
-class ChangeMemberInfoView(generic.FormView, BasicUserView):
-    """修改个人信息视图"""
+class ChangeMemberEmailView(generic.FormView, BasicUserView):
+    """修改个人邮箱视图"""
 
     form_class = ChangeEmailForm
-    template_name = 'shop/center/member_center/change_info.html'
+    template_name = 'shop/center/member_center/change_email.html'
 
     def get_context_data(self, **kwargs):
         # 添加用户对象到 context
         return super().get_context_data(request=self.request, kwargs=kwargs)
 
-    @user_auth(usertype=['normal', 'seller', 'admin'])
+    @user_auth(usertype=['normal'])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
+class ChangeMemberPasswordView(generic.FormView, BasicUserView):
+    """修改个人密码视图"""
+
+    form_class = ChangePasswordFEForm
+    template_name = 'shop/center/member_center/change_password.html'
+
+    def get_context_data(self, **kwargs):
+        # 添加用户对象到 context
+        return super().get_context_data(request=self.request, kwargs=kwargs)
+
+    @user_auth(usertype=['normal'])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -429,9 +445,6 @@ class ServerErrorApiView(APIView):
 class UserEmailAPIView(APIView):
     """用户邮箱API"""
 
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
     def update(self, request, *args, **kwargs):
         if not ChangeEmailForm(request.POST).is_valid():
             return self.result_builder \
@@ -452,4 +465,35 @@ class UserEmailAPIView(APIView):
         else:
             return self.result_builder \
                 .set_errors('The current user-email is incorrect.') \
+                .as_json_response(412)
+
+
+class UserPasswordAPIView(APIView):
+    """用户密码API"""
+
+    def update(self, request, *args, **kwargs):
+        if not ChangePasswordBEForm(request.POST).is_valid():
+            return self.result_builder \
+                .set_errors('Parameters format not correct error.') \
+                .as_json_response(412)
+
+        curr_password = request.POST['curr_password']
+        new_password = request.POST['new_password']
+        new_password_again = request.POST['new_password_again']
+        user = get_current_user(request)
+
+        if new_password != new_password_again:
+            return self.result_builder \
+                .set_errors('Two new passwords do not match.') \
+                .as_json_response(412)
+        elif user.check_password(curr_password):
+            user.password = new_password
+            user.save()
+
+            return self.result_builder \
+                .set_results('User-password changed successful.') \
+                .as_json_response()
+        else:
+            return self.result_builder \
+                .set_errors('The current user-password is incorrect.') \
                 .as_json_response(412)

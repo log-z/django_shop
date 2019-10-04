@@ -33,3 +33,19 @@ class ChangeEmailForm(forms.Form):
 
     curr_email = forms.EmailField(label='当前邮箱', min_length=1)
     new_email = forms.EmailField(label='新邮箱', min_length=1)
+
+
+class ChangePasswordFEForm(forms.Form):
+    """修改密码前端表单"""
+
+    curr_password = forms.CharField(label='当前密码', min_length=8, max_length=20, widget=forms.PasswordInput())
+    new_password = forms.CharField(label='新密码', min_length=8, max_length=20, widget=forms.PasswordInput())
+    new_password_again = forms.CharField(label='重复新密码', min_length=8, max_length=20, widget=forms.PasswordInput())
+
+
+class ChangePasswordBEForm(forms.Form):
+    """修改密码后端表单"""
+
+    curr_password = forms.CharField(label='当前密码', min_length=64, max_length=64, widget=forms.PasswordInput())
+    new_password = forms.CharField(label='新密码', min_length=64, max_length=64, widget=forms.PasswordInput())
+    new_password_again = forms.CharField(label='重复新密码', min_length=64, max_length=64, widget=forms.PasswordInput())

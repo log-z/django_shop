@@ -398,6 +398,19 @@ ul.goods-list li .seller {
     margin: 0;
 }
 
+.b-form .tips {
+    margin: 0 8px;
+    color: var(--secondary-text-color-dark);
+}
+
+.b-form .tips.success {
+    color: var(--primary-color);
+}
+
+.b-form .tips.error {
+    color: var(--warning-color);
+}
+
 
 /*    注册登陆表单    */
 

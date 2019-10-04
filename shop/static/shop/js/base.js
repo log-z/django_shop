@@ -26,13 +26,11 @@ function form_dataset(form) {
 function default_restful_handel(form, xlr) {
     if (xlr.readyState !== 4) return;
 
-    let tips = form.querySelector('.tips');
     let data = JSON.parse(xlr.responseText);
     if (data.status === 200) {
-        tips.innerText = data.results;
+        form.tips(data.results, 'success');
     } else {
-        tips.innerText = data.errors;
-        tips.classList.add('error');
+        form.tips(data.errors, 'error');
     }
 }
 
@@ -41,13 +39,33 @@ function form_restful_init() {
     for (let i = 0; i < forms.length; i++) {
         if (forms[i].getAttribute('submit-type') !== 'restful') continue;
 
-        forms[i].onsubmit = ev => {
+        // 绑定表单提示
+        forms[i].tips = function (value, lever) {
+            let tips = this.querySelector('.tips');
+            tips.classList.remove('error', 'success');
+
+            if (value === null) {
+                tips.innerText = null;
+            } else {
+                tips.innerText = value;
+                tips.classList.add(lever);
+            }
+        };
+
+        // 重定向表单提交事件
+        forms[i].onsubmit = function(ev) {
             ev.preventDefault();
             let form = ev.target;
-            let tips = form.querySelector('.tips');
-            tips.innerText = null;
-            tips.classList.remove('error');
+            form.tips(null, null);
 
+            // 执行表单提交前的准备过程
+            let submit_before = form.submitBefore && form.submitBefore();
+            if (typeof(submit_before) === 'object' && submit_before.checked === false) {
+                form.tips(submit_before.error_info, 'error');
+                return
+            }
+
+            // 使用Ajax方式发送restful请求
             let xlr = new XMLHttpRequest();
             xlr.open(form.method, form.action, true);
             xlr.setRequestHeader('Accept', 'application/json');
@@ -58,6 +76,6 @@ function form_restful_init() {
     }
 }
 
-window.addLoadEvent(() => {
+window.addLoadEvent(function() {
     form_restful_init();
 });

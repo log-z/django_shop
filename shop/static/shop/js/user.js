@@ -31,15 +31,12 @@ function register_submit() {
 
     try {
         clear_errors(this);
+        encryption(this);
 
         let pw1 = this.querySelector('#id_password');
         let pw2 = this.querySelector('#id_password_again');
-
         // 检查两次密码输入是否一致
         if (pw_check(pw1, pw2) === true) {
-            pw1.value = sha256(pw1.value + salt);
-            pw2.value = sha256(pw2.value + salt);
-
             checked = true;
         } else {
             append_error_info(pw1, '两次输入的密码不一致');
@@ -58,9 +55,7 @@ function login_submit() {
     let checked = false;
 
     try {
-        let pw = this.querySelector('#id_password');
-        pw.value = sha256(pw.value + salt);
-
+        encryption(this);
         checked = true;
     } catch (e) {
         checked = false;
@@ -68,6 +63,16 @@ function login_submit() {
     }
 
     return checked;
+}
+
+function encryption(form) {
+    let encryption_type = ['password'];
+
+    form.querySelectorAll('input').forEach(input => {
+        if (encryption_type.indexOf(input.type) >= 0) {
+            input.value = sha256(input.value + salt);
+        }
+    });
 }
 
 window.addLoadEvent(() => {
