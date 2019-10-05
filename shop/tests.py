@@ -8,6 +8,10 @@ from .models import User, Goods
 from .forms import RegisterBEForm, RegisterFEForm, LoginBEForm, LoginFEForm
 
 
+def password_encode(password):
+    return hashlib.sha256(bytes(password, encoding='utf-8')).hexdigest()
+
+
 class UserModelTest(TestCase):
     """用户模型测试"""
 
@@ -287,7 +291,7 @@ class RegisterBEFormTest(TestCase):
         form1 = RegisterBEForm({
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         })
         self.assertTrue(form1.is_valid())
 
@@ -295,7 +299,7 @@ class RegisterBEFormTest(TestCase):
         form2 = RegisterBEForm({
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.commmmmmmmmmmmmm',
-            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
+            'password': password_encode('12345678901234567890'),
         })
         self.assertTrue(form2.is_valid())
 
@@ -306,7 +310,7 @@ class RegisterBEFormTest(TestCase):
     def test_invalid_username(self):
         data = {
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
 
         # 不指定用户名
@@ -326,7 +330,7 @@ class RegisterBEFormTest(TestCase):
     def test_invalid_email(self):
         data = {
             'username': '123',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
 
         # 不指定Email
@@ -354,12 +358,12 @@ class RegisterBEFormTest(TestCase):
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
-        data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
+        data['password'] = password_encode('1')[:-1]
         form2 = RegisterBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
-        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        data['password'] = password_encode('12345678') + 'a'
         form3 = RegisterBEForm(data)
         self.assertFalse(form3.is_valid())
 
@@ -433,7 +437,7 @@ class LoginBEFormTest(TestCase):
         form1 = LoginBEForm({
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         })
         self.assertTrue(form1.is_valid())
 
@@ -441,7 +445,7 @@ class LoginBEFormTest(TestCase):
         form2 = LoginBEForm({
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.commmmmmmmmmmmmm',
-            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
+            'password': password_encode('12345678901234567890'),
         })
         self.assertTrue(form2.is_valid())
 
@@ -480,12 +484,12 @@ class LoginBEFormTest(TestCase):
         self.assertFalse(form1.is_valid())
 
         # 长度过短的密码
-        data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
+        data['password'] = password_encode('1')[:-1]
         form2 = LoginBEForm(data)
         self.assertFalse(form2.is_valid())
 
         # 超出长度的密码
-        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        data['password'] = password_encode('12345678') + 'a'
         form3 = LoginBEForm(data)
         self.assertFalse(form3.is_valid())
 
@@ -523,8 +527,8 @@ class RegisterViewTest(TestCase):
         data1 = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
+            'password_again': password_encode('12345678'),
         }
         response1 = self.client.post(self.url, data=data1)
         self.assertEqual(response1.status_code, 302)
@@ -536,8 +540,8 @@ class RegisterViewTest(TestCase):
         data2 = {
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.com',
-            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
-            'password_again': hashlib.sha256(b'12345678901234567890').hexdigest(),
+            'password': password_encode('12345678901234567890'),
+            'password_again': password_encode('12345678901234567890'),
         }
         response2 = self.client.post(self.url, data=data2)
         self.assertEqual(response2.status_code, 302)
@@ -548,8 +552,8 @@ class RegisterViewTest(TestCase):
     def test_invalid_username(self):
         data = {
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
+            'password_again': password_encode('12345678'),
         }
 
         # 不指定用户名
@@ -575,8 +579,8 @@ class RegisterViewTest(TestCase):
     def test_invalid_email(self):
         data = {
             'username': '123',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
-            'password_again': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
+            'password_again': password_encode('12345678'),
         }
 
         # 不指定Email
@@ -612,24 +616,24 @@ class RegisterViewTest(TestCase):
         self.assertFalse(User.objects.filter(email=data['email']).exists())
 
         # 长度过短的密码
-        data['password'] = hashlib.sha256(b'1').hexdigest()[:-1]
-        data['password_again'] = hashlib.sha256(b'1').hexdigest()[:-1]
+        data['password'] = password_encode('1')[:-1]
+        data['password_again'] = password_encode('1')[:-1]
         response2 = self.client.post(self.url, data=data)
         self.assertEqual(response2.status_code, 200)
         self.assertContains(response2, self.register_view_identity)
         self.assertFalse(User.objects.filter(email=data['email']).exists())
 
         # 超出长度的密码
-        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
-        data['password_again'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        data['password'] = password_encode('12345678') + 'a'
+        data['password_again'] = password_encode('12345678') + 'a'
         response3 = self.client.post(self.url, data=data)
         self.assertEqual(response3.status_code, 200)
         self.assertContains(response3, self.register_view_identity)
         self.assertFalse(User.objects.filter(email=data['email']).exists())
 
         # 两次输入的密码不一致
-        data['password'] = hashlib.sha256(b'12345678').hexdigest()
-        data['password_again'] = hashlib.sha256(b'87654321').hexdigest()
+        data['password'] = password_encode('12345678')
+        data['password_again'] = password_encode('87654321')
         response3 = self.client.post(self.url, data=data)
         self.assertEqual(response3.status_code, 200)
         self.assertContains(response3, self.register_view_identity)
@@ -639,7 +643,7 @@ class RegisterViewTest(TestCase):
         data = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data)
 
@@ -689,7 +693,7 @@ class LoginViewTest(TestCase):
         data1 = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data1)
         response1 = self.client.post(self.url, data=data1)
@@ -700,7 +704,7 @@ class LoginViewTest(TestCase):
         data2 = {
             'username': '12345678901234567890',
             'email': 'aaaaaaaaaaaaaa@bbbbbbbbbbbbbb.com',
-            'password': hashlib.sha256(b'12345678901234567890').hexdigest(),
+            'password': password_encode('12345678901234567890'),
         }
         User.objects.create(**data2)
         response2 = self.client.post(self.url, data=data2)
@@ -711,7 +715,7 @@ class LoginViewTest(TestCase):
         data = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data)
 
@@ -747,7 +751,7 @@ class LoginViewTest(TestCase):
         data = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data)
 
@@ -759,21 +763,21 @@ class LoginViewTest(TestCase):
         self.assertNotContains(response1, reverse('shop:logout'))
 
         # 长度过短的密码
-        data['password'] = hashlib.sha256(b'12345678').hexdigest()[:-1]
+        data['password'] = password_encode('12345678')[:-1]
         response2 = self.client.post(self.url, data=data)
         self.assertEqual(response2.status_code, 200)
         self.assertContains(response2, self.login_view_identity)
         self.assertNotContains(response2, reverse('shop:logout'))
 
         # 超出长度的密码
-        data['password'] = hashlib.sha256(b'12345678').hexdigest() + 'a'
+        data['password'] = password_encode('12345678') + 'a'
         response3 = self.client.post(self.url, data=data)
         self.assertEqual(response3.status_code, 200)
         self.assertContains(response3, self.login_view_identity)
         self.assertNotContains(response3, reverse('shop:logout'))
 
         # 错误的密码
-        data['password'] = hashlib.sha256(b'87654321').hexdigest()
+        data['password'] = password_encode('87654321')
         response4 = self.client.post(self.url, data=data)
         self.assertEqual(response4.status_code, 200)
         self.assertContains(response3, self.login_view_identity)
@@ -783,7 +787,7 @@ class LoginViewTest(TestCase):
         data = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data)
 
@@ -807,7 +811,7 @@ class LogoutViewTest(TestCase):
         data = {
             'username': '123',
             'email': 'a@b.com',
-            'password': hashlib.sha256(b'12345678').hexdigest(),
+            'password': password_encode('12345678'),
         }
         User.objects.create(**data)
 
@@ -828,7 +832,7 @@ class BaseViewTest(TestCase):
     test_user_data = {
         'username': '123',
         'email': 'a@b.com',
-        'password': hashlib.sha256(b'12345678').hexdigest(),
+        'password': password_encode('12345678'),
     }
 
     def test_user_center_enter(self):
@@ -858,11 +862,10 @@ class UserEmailAPIViewTest(TestCase):
     test_user_data = {
         'username': '123',
         'email': 'a@b.com',
-        'password': hashlib.sha256(b'12345678').hexdigest(),
+        'password': password_encode('12345678'),
     }
 
     def test_update_email(self):
-        # 已登录状态，但用户被删除
         user = User.objects.create(**self.test_user_data)
         update_data = {
             'curr_email': 'a@b.com',
@@ -893,7 +896,7 @@ class UserEmailAPIViewTest(TestCase):
         user.refresh_from_db()
         self.assertEqual(user.email, update_data['new_email'])
         # 还原Email
-        user.email = update_data['curr_email']
+        user.email = self.test_user_data['email']
         user.save()
 
         # 参数（即表单）格式错误，失败
@@ -911,6 +914,82 @@ class UserEmailAPIViewTest(TestCase):
         data5 = json.loads(response5.content)
         self.assertEqual(data5['status'], 412)
         self.assertEqual(data5['errors'], 'The current user-email is incorrect.')
+
+        # 用户已被删除，失败
+        user.delete()
+        response6 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response6.url, reverse('shop:api_unauthorized_error'))
+
+
+class UserPasswordAPIViewTest(TestCase):
+    """用户密码API视图测试"""
+
+    login_url = reverse('shop:login')
+    api_url = reverse('shop:api_user_password')
+    test_user_data = {
+        'username': '123',
+        'email': 'a@b.com',
+        'password': password_encode('12345678'),
+    }
+
+    def test_update_email(self):
+        user = User.objects.create(**self.test_user_data)
+        update_data = {
+            'curr_password': password_encode('12345678'),
+            'new_password': password_encode('87654321'),
+            'new_password_again': password_encode('87654321'),
+        }
+
+        # 未登录，失败
+        response1 = self.client.post(self.api_url, update_data)
+        self.assertEqual(response1.url, reverse('shop:api_unauthorized_error'))
+
+        # 登陆
+        self.client.post(self.login_url, self.test_user_data)
+
+        # 已登录，但未指定操作，失败
+        response2 = self.client.post(self.api_url, update_data)
+        data2 = json.loads(response2.content)
+        self.assertEqual(data2['status'], 405)
+        self.assertTrue(user.check_password(self.test_user_data['password']))
+
+        # 指定操作为“更新”
+        update_data['_ext_method'] = 'update'
+
+        # 成功
+        response3 = self.client.post(self.api_url, update_data)
+        data3 = json.loads(response3.content)
+        self.assertEqual(data3['status'], 200)
+        self.assertEqual(data3['results'], 'User-password changed successful.')
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(update_data['new_password']))
+        # 还原密码
+        user.password = self.test_user_data['password']
+        user.save()
+
+        # 参数（即表单）格式错误，失败
+        update_data_temp4 = update_data.copy()
+        update_data_temp4['curr_password'] = 'abc'
+        response4 = self.client.post(self.api_url, update_data_temp4)
+        data4 = json.loads(response4.content)
+        self.assertEqual(data4['status'], 412)
+        self.assertEqual(data4['errors'], 'Parameters format not correct error.')
+
+        # 两次输入的新密码不匹配，失败
+        update_data_temp5 = update_data.copy()
+        update_data_temp5['new_password_again'] = update_data_temp5['new_password'][::-1]
+        response5 = self.client.post(self.api_url, update_data_temp5)
+        data5 = json.loads(response5.content)
+        self.assertEqual(data5['status'], 412)
+        self.assertEqual(data5['errors'], 'Two new passwords do not match.')
+
+        # 与当前密码不匹配，失败
+        update_data_temp6 = update_data.copy()
+        update_data_temp6['curr_password'] = update_data_temp6['new_password']
+        response6 = self.client.post(self.api_url, update_data_temp6)
+        data5 = json.loads(response6.content)
+        self.assertEqual(data5['status'], 412)
+        self.assertEqual(data5['errors'], 'The current user-password is incorrect.')
 
         # 用户已被删除，失败
         user.delete()
