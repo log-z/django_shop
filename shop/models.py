@@ -31,12 +31,6 @@ class UserType(models.Model):
     def __str__(self):
         return self.typename
 
-    def __eq__(self, other):
-        if isinstance(other, UserType):
-            return self.description == other.description
-        else:
-            return False
-
 
 class User(models.Model):
     """用户模型"""
@@ -44,7 +38,7 @@ class User(models.Model):
     username = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=60)
     email = models.CharField(max_length=320)
-    type = models.ForeignKey(UserType, on_delete=models.PROTECT, default=UserType.objects.get(typename='normal').pk)
+    type = models.ForeignKey(UserType, on_delete=models.PROTECT, default=0)
 
     SALT_ROUNDS = 12
     SALT_PREFIX = b'2b'

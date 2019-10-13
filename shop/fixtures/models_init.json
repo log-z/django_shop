@@ -1,0 +1,26 @@
+[
+  {
+    "model": "shop.usertype",
+    "pk": 0,
+    "fields": {
+      "typename": "normal",
+      "description": "普通用户，拥有购买商品权限。"
+    }
+  },
+  {
+    "model": "shop.usertype",
+    "pk": 100,
+    "fields": {
+      "typename": "admin",
+      "description": "管理员，拥有最高权限。"
+    }
+  },
+  {
+    "model": "shop.usertype",
+    "pk": 200,
+    "fields": {
+      "typename": "seller",
+      "description": "商户，拥有管理商铺的权限。"
+    }
+  }
+]
